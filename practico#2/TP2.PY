@@ -1,8 +1,10 @@
 import requests
 import json
 from ctypes import CDLL, c_float, c_int
+
 # Cargamos la libreria 
-lib = CDLL('./TP2.so') 
+lib = CDLL('./TP2_mac_arm.so')
+#lib = CDLL('./TP2.so') #
 
 lib.process_data.argtypes = [c_float]
 lib.process_data.restype = c_int
