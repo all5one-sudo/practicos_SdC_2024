@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Cargamos la libreria 
-#lib = CDLL('./TP2_mac_arm.so') #para ejecutar en arm64
-lib = CDLL('./TP2.so') #
+lib = CDLL('./TP2_mac_arm.so') #para ejecutar en arm64
+#lib = CDLL('./TP2.so') #
 
 # Definimos los tipos de los argumentos y el tipo de retorno de la funcion
 lib.process_data.argtypes = [c_float]
@@ -19,6 +19,8 @@ def get_gini_index(country):
     response = requests.get(url)
     data = response.json()
     return data[1]
+
+# se puede agregar un manejo de errores para el caso de que el pais no exista try except
 
 # Definimos la funcion que se encargara de imprimir los paises y sus codigos iso3
 def print_countries():
@@ -58,6 +60,7 @@ if __name__ == "__main__":
                     aux_value = lib.process_data(values[i])
                     processed_values.append(aux_value)
                 df = pd.DataFrame({'year': years, 'values': values, 'processed_values': processed_values})
+                plt.figure()
                 plt.plot(df['year'], df['values'], label='Gini Index')
                 plt.plot(df['year'], df['processed_values'], label='Processed Gini Index')
                 plt.xlabel('Year')
