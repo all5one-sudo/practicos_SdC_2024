@@ -1,15 +1,16 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox, QListWidget, QVBoxLayout, QPushButton, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox, QListWidget, QVBoxLayout, QPushButton, QWidget, QLabel, QVBoxLayout, QSizePolicy, QGridLayout
 from PyQt5.QtCore import Qt
 import requests
 import json
 import matplotlib.pyplot as plt
-import pandas as pd
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from ctypes import CDLL, c_float, c_int
 import zipfile
 import os
 from PyQt5.QtWidgets import QListWidgetItem
 import time
+import pandas as pd
 
 # Se crea una ventana principal
 class MainWindow(QMainWindow):
@@ -21,11 +22,16 @@ class MainWindow(QMainWindow):
         self.list_widget = QListWidget()
         self.start_button = QPushButton("Get GINI Index")
         self.save_button = QPushButton("Save Images")
+        self.info_label = QLabel("Select countries to calculate GINI index and click 'Get GINI Index' to generate plots.")
+        self.plot_canvas = PlotCanvas(self, width=5, height=4)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.list_widget)
-        layout.addWidget(self.start_button)
-        layout.addWidget(self.save_button)
+        # Se crea un layout de cuadrícula
+        layout = QGridLayout()
+        layout.addWidget(self.info_label, 0, 0, 1, 2)  # fila, columna, rowspan, columnspan
+        layout.addWidget(self.list_widget, 1, 0)
+        layout.addWidget(self.start_button, 2, 0)
+        layout.addWidget(self.save_button, 3, 0)
+        layout.addWidget(self.plot_canvas, 1, 1, 3, 1)
 
         container = QWidget()
         container.setLayout(layout)
@@ -37,7 +43,7 @@ class MainWindow(QMainWindow):
         self.load_countries()
 
     # Se obtienen los índices y los respectivos años de un país
-    def get_gini_index(self,country):
+    def get_gini_index(self, country):
         url = f"https://api.worldbank.org/v2/en/country/{country}/indicator/SI.POV.GINI?format=json&date=2011:2020&per_page=32500&page=1"
         response = requests.get(url)
         data = response.json()
@@ -77,14 +83,7 @@ class MainWindow(QMainWindow):
                     aux_value = lib.process_data(values[i])
                     processed_values.append(aux_value)
                 df = pd.DataFrame({'year': years, 'values': values, 'processed_values': processed_values})
-                plt.figure()
-                plt.plot(df['year'], df['values'], label='Gini Index')
-                plt.plot(df['year'], df['processed_values'], label='Processed Gini Index')
-                plt.xlabel('Year')
-                plt.ylabel('Gini Index')
-                plt.title(f'Gini Index for {country}')
-                plt.legend()
-                plt.savefig(f'Gini_Index_{country}.png')
+                self.plot_canvas.plot(df['year'], df['values'], df['processed_values'], country)
 
     # Se guardan las imágenes en un archivo zip
     def save_images(self):
@@ -94,6 +93,23 @@ class MainWindow(QMainWindow):
                     zipf.write(file)
                     time.sleep(0.1)
                     os.remove(file)
+
+# Clase para el lienzo del plot
+class PlotCanvas(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig, self.ax = plt.subplots(figsize=(width, height), dpi=dpi)
+        super().__init__(fig)
+        self.setParent(parent)
+
+    def plot(self, years, values, processed_values, country):
+        self.ax.clear()
+        self.ax.plot(years, values, label='Gini Index')
+        self.ax.plot(years, processed_values, label='Processed Gini Index')
+        self.ax.set_xlabel('Year')
+        self.ax.set_ylabel('Gini Index')
+        self.ax.set_title(f'Gini Index for {country}')
+        self.ax.legend()
+        self.draw()
 
 # Función principal
 if __name__ == '__main__':
