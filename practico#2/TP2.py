@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Cargamos la libreria 
+# Cargamos la libreria
 lib = CDLL('./TP2_mac_arm.so') #para ejecutar en arm64
 #lib = CDLL('./TP2.so') #
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     while(True):
         country = str(input())
         if country != '-':
-            if len(country) <= 3:
+            if len(country) <= 3 and len(country) > 1:
                 # Obtenemos los datos del pais y graficamos el Gini Index
                 json_data = get_gini_index(country)
                 values = [json_data[i]['value'] for i in range(len(json_data)) if json_data[i]['value'] is not None]
@@ -75,3 +75,6 @@ if __name__ == "__main__":
         else:
             break
 
+# probar integracion, sistema, validacion de usuario
+
+# Para probar el sistema tendria que probar levantar un servidor para probar que las apis y las conexiones funciones, pruebo el uso de requests y los response
