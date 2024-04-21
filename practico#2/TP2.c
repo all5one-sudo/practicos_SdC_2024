@@ -4,7 +4,8 @@
 extern int float_2_int(float data);
 
 int process_data(float data) {
-    return (int) (data+1);
+    // return (int) (data+1);
+    return float_2_int(data);
 }
 
 int main() {

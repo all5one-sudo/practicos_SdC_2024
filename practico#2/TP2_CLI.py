@@ -3,7 +3,10 @@ import json
 from ctypes import CDLL, c_float, c_int
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import style
 import pandas as pd
+import seaborn as sns
+plt.style.use('seaborn-v0_8-dark')
 
 # Cargamos la libreria
 lib = CDLL('./TP2_mac_arm.so') # para ejecutar en arm64

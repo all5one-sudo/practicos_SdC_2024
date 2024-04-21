@@ -94,13 +94,13 @@ class MainWindow(QMainWindow):
                     time.sleep(0.1)
                     os.remove(file)
 
+
 # Clase para el lienzo del plot
 class PlotCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig, self.ax = plt.subplots(figsize=(width, height), dpi=dpi)
         super().__init__(fig)
         self.setParent(parent)
-
     def plot(self, years, values, processed_values, country):
         self.ax.clear()
         self.ax.plot(years, values, label='Gini Index')
