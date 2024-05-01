@@ -68,7 +68,8 @@ class MainWindow(QMainWindow):
 
     # Se inicia el proceso de obtención de los índices y se grafican
     def start(self):
-        lib = CDLL('./TP2_mac_arm.so')
+        # lib = CDLL('./TP2_mac_arm.so')
+        lib = CDLL("./TP2_windows.so")
         lib.process_data.argtypes = [c_float]
         lib.process_data.restype = c_int
         for index in range(self.list_widget.count()):

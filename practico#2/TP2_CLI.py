@@ -1,19 +1,14 @@
 import requests
-import json
 from ctypes import CDLL, c_float, c_int
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import style
 import pandas as pd
-import seaborn as sns
 plt.style.use('seaborn-v0_8-dark')
 
 # Cargamos la libreria
-lib = CDLL('./TP2_mac_arm.so') # para ejecutar en arm64
-# lib = CDLL('./TP2.so') # para linux
-#lib = CDLL("./TP2_windows.so")  # para windows
+# lib = CDLL('./TP2_mac_arm.so') # para ejecutar en arm64
+lib = CDLL('./TP2.so') # para linux
+# lib = CDLL("./TP2_windows.so")  # para windows
 
-# Definimos los tipos de los argumentos y el tipo de retorno de la funcion
 lib.process_data.argtypes = [c_float]
 lib.process_data.restype = c_int
 
