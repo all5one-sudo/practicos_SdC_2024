@@ -49,7 +49,9 @@ Otros actores de seguridad sencontraron amenazas similares, como:
 
 Lenovo recomienda actualizar el firmware del sistema a la versión más reciente para protegerse contra estas vulnerabilidades. Las actualizaciones pueden realizarse manualmente desde la página de soporte del dispositivo o mediante utilidades proporcionadas por la compañía para la actualización de controladores del sistema.
 
-### Intel Converged Security and Management Engine (CSME)
+### Intel Converged Security and Management Engine (Intel CSME)
+
+
 
 Intel® CSME es un subsistema embebido y dispositivo PCIe que actúa como controlador de seguridad y gestión dentro del PCH. Está diseñado para operar en un entorno aislado del software principal del sistema, como el BIOS, el sistema operativo y las aplicaciones. Accede a interfaces limitadas como GPIO y LAN/WLAN para sus funciones, y su firmware y configuración se almacenan en memoria NVRAM, típicamente en memoria flash en el bus SPI.
 
@@ -57,6 +59,75 @@ ntel® CSME está presente en la mayoría de las plataformas de Intel, incluyend
 
 La siguiente imagen ilustra la ubicacion de CSME en el sistema.
 
-<img src="../assets/csme_system.png" alt="CSME in the System">
+<img src="./assets/csme_system.png" alt="CSME in the System">
+
+#### Funciones principales
+
+- **Inicialización del Silicio**: se encarga de la inicialización básica del PCH, autenticación y carga de firmware en componentes de hardware integrados, y depuración segura del PCH.
+- **Gestionabilidad**: mejora la gestión remota de plataformas a través de Intel® AMT, permitiendo características como redirección de consola, redirección de almacenamiento USB, control remoto de teclado, video y ratón, control remoto de energía, gestión de eventos, y diagnóstico independiente del sistema operativo.
+- **Seguridad**: incluye tecnologías como Intel® PTT para soporte de TPM, Intel® Boot Guard para integridad del arranque, soporte de DRM de hardware, y capacidades de carga y ejecución segura de firmware y applets, proporcionando un alto nivel de seguridad a nivel de hardware.
+
+### Intel Management Engine BIOS Extension (Intel MEBx)
+
+<img src="./assets/mebx.png" alt="Intel MEBx">
+
+El Intel® Management Engine (Intel® ME) es un recurso de computación protegido y separado que ofrece características de gestión de TI, como Intel® Active Management Technology (Intel® AMT 7.0), independientemente del sistema operativo instalado. La configuración de Intel ME se integra en el BIOS mediante la Extensión del BIOS de Intel® Management Engine (Intel® MEBX), que permite modificar y recopilar la configuración de hardware del sistema, transmitiéndola al firmware de gestión y proporcionando una interfaz de usuario para configurar Intel ME.
+
+### coreboot
+
+coreboot es un proyecto open source que reemplaza el firmware propietario en las computadoras. Inicializa el hardware y luego transfiere el control a un payload que, generalmente, arranca el sistema operativo. Su diseño flexible permite su uso en aplicaciones especializadas, ejecución de sistemas operativos desde flash, carga de cargadores de arranque personalizados y la implementación de estándares de firmware. Esto reduce la cantidad de código y el espacio en flash necesario, incluyendo solo las funciones esenciales para la aplicación específica.
+
+#### Arquitectura
+
+<img src="./assets/coreboot.svg" alt="coreboot">
+
+#### Productos que lo incorporan
+
+- Chromebooks: muchos Chromebooks, especialmente aquellos fabricados por Google, utilizan Coreboot como su firmware base.
+- Servidores: algunos fabricantes de servidores, como Facebook, han adoptado Coreboot en sus centros de datos para una inicialización rápida y eficiente del sistema.
+- Dispositivos embebidos: coreboot se utiliza en una variedad de dispositivos embebidos y sistemas integrados donde se necesita un firmware ligero y flexible.
+
+#### Ventajas
+
+- **Open source**: coreboot se basa en los principios del Software de Código Abierto. Muchos de los ingenieros que trabajan en coreboot también han trabajado en el núcleo de Linux. En lugar de mantener las mejoras de un sistema en secreto para todos los demás proveedores, en coreboot, estas mejoras se comparten en todos los ámbitos, proporcionando a los usuarios finales un firmware mucho mejor y mucho más estable.
+- **Flexibilidad**: la principal flexibilidad que ofrece coreboot es a través del uso de diferentes payloads. Soportamos el arranque de sistemas operativos heredados a través de SeaBIOS, el arranque de red con una ROM iPXE integrada o el último payload UEFI. Se pueden crear payloads personalizados utilizando la herramienta libpayload con licencia BSD.
+- **Seguridad**: coreboot viene con una Base de Confianza Mínima que reduce la superficie general de ataque. También soporta un proceso de arranque seguro llamado VBOOT2. Está escrito en el estándar MISRA-C y proporciona otros lenguajes como Ada para la verificación formal de propiedades especiales. Además, el uso de características de plataforma como IOMMU, protecciones de flash y el modo SMM desactivado aumentan la seguridad también.
+- **Rendimiento**: los ingenieros de coreboot han trabajado en muchos proyectos de software críticos para la seguridad. La arquitectura de coreboot está diseñada para tener un proceso de actualización inalterable. Actualizar el firmware no debería ser más peligroso que instalar tu aplicación favorita en tu teléfono móvil.
+- **Rendimiento**: coreboot está diseñado para arrancar rápidamente. Para equipos de escritorio y portátiles, puede arrancar frecuentemente al inicio del sistema operativo en menos de un segundo. Para servidores, puede reducir minutos del tiempo de arranque. Algunos proveedores han demostrado una disminución en el tiempo de arranque de más del 70% en comparación con el BIOS OEM.
+
+## Practico
+
+### Imagen booteable
+
+Para crear una imagen booteable para arquitectura x86, lo mas sencillo es crear un sector de arranque MBR y colocarlo en un disco. Para ello, se ejecuta una unica linea de codigo:
+
+```
+printf '\364%509s\125\252' > main.img
+```
+En donde:
+
+- `\364` en octal es `0xf4` en hexadecimal: instruccion `hlt`
+- Para obtener la codificacion de una instruccion en particular:
+    - `echo hlt > a.S`
+    - `as -o a.o a.S`
+    - `objdump -S a.o`
+- `%509s` produce 509 espacios necesarios para completar la imagen hasta el byte 510.
+- `\125\252` en octal es `0x55 0xAA` en hexadecimal, requisito para que sea interpretada como una `mbr`.
+- `hd main.img`
+
+<img src="./assets/echo.png" alt="objdump">
+
+Para correr la imagen, se instala `qemu` y se lo corre con la instruccion: `qemu-system-x86_64 --drive file=main.img,format=raw,index=0,media=disk`. Se obtiene algo como lo siguiente:
+
+<img src="./assets/boot_qemu_first.png" alt="qemu example">
+
+Para probar correr la imagen en hardware, se graba un pendrive con la imagen anteriormente utilizada. Para ello, primero fue necesario encontrar el path del pendrive, y con eso se ejecuta la instruccion `sudo dd if=main.img of=/dev/sdc`.
+
+<img src="./assets/pendrive.png" alt="grabar pendrive">
+
+
+
+
+
 
 
