@@ -6,7 +6,7 @@ Este trabajo fue realizado por los alumnos:
 - Gallardo, Nicolas
 - Villar, Federico Ignacio
 
-## Teorico
+## Teórico
 
 ### UEFI
 
@@ -95,7 +95,7 @@ coreboot es un proyecto open source que reemplaza el firmware propietario en las
 - **Rendimiento**: los ingenieros de coreboot han trabajado en muchos proyectos de software críticos para la seguridad. La arquitectura de coreboot está diseñada para tener un proceso de actualización inalterable. Actualizar el firmware no debería ser más peligroso que instalar tu aplicación favorita en tu teléfono móvil.
 - **Rendimiento**: coreboot está diseñado para arrancar rápidamente. Para equipos de escritorio y portátiles, puede arrancar frecuentemente al inicio del sistema operativo en menos de un segundo. Para servidores, puede reducir minutos del tiempo de arranque. Algunos proveedores han demostrado una disminución en el tiempo de arranque de más del 70% en comparación con el BIOS OEM.
 
-## Practico
+## Práctico
 
 ### Imagen booteable
 
@@ -135,6 +135,18 @@ Por alguna razon, no se termina de ejecutar ningun arranque, simplemente al sele
 
 
 ### Linker
+
+
+#### ¿Qué es? ¿Qué hace?
+
+
+Un linker (o enlazador) es una herramienta del proceso de compilación de programas que combina uno o más archivos objeto (resultantes de la compilación de archivos fuente) y bibliotecas en un solo archivo ejecutable, biblioteca compartida u otro formato de archivo de salida. El linker realiza varias funciones esenciales, entre las cuales se incluyen:
+
+- **Resolución de símbolos**: encuentra las definiciones de todas las referencias simbólicas en los archivos objeto, asegurándose de que todas las llamadas a funciones y referencias a variables estén correctamente resueltas.
+- **Reubicación**: ajusta las direcciones de los programas y datos en los archivos objeto para reflejar su ubicación final en el archivo ejecutable.
+- **Combina segmentos**: junta las distintas secciones de código y datos (como las secciones .text para el código y .data para los datos) en un formato coherente y continuo.
+
+#### Práctico
 
 Para compilar, linkear y ejecutar lo solicitado en qemu, se ejecuta un script de shell, brindado en el repositorio de referencia:
 
@@ -188,7 +200,7 @@ qemu-system-x86_64 -hda main.img
 ```
 Esta seccion de Hello World, ejecutada en el directorio homonimo, consta de los archivos mostrados en parrafos anteriores. Es importante dar algunas consideraciones:
 
-- `SECTIONS`: se definen las secciones de memoria del programa y como estan organizadas en la imagen final. En este caso se define que el punto de inicio del programa esta en la direccion `0x7C00`, que es donde la BIOS carga el sector de arranque del disco.
+- `SECTIONS`: se definen las secciones de memoria del programa y como estan organizadas en la imagen final. En este caso se define que el punto de inicio del programa esta en la direccion `0x7C00`, que es donde la BIOS carga el sector de arranque del disco. Es necesaria justamente por la razón recién mencionada.
 - `.text`: es la seccion de codigo del programa. Se define que el simbolo `__start` marca el inicio del codigo. Luego, se coloca la firma especial de arranque `0xAA55` en la direccion `0x1FE`, que es el ultimo byte del sector de arranque.
 - Para el codigo ensamblador:
     - `.code16`: Indica que el código se ensamblará en modo real de 16 bits.
@@ -214,6 +226,7 @@ Se puede apreciar:
 - Codigo de arranque: `be 0f 7c b4 0e ac 08 c0 74 04 cd 10 eb f7 f4 68`, estas son las instrucciones de código de arranque ensambladas. En ensamblador x86, estas instrucciones realizan varias operaciones, como cargar la dirección de memoria de la cadena "hello world" en un registro, realizar llamadas a la BIOS para imprimir caracteres en pantalla, y establecer un bucle para imprimir cada carácter de la cadena.
 - Cadena "hello world": `65 6c 6c 6f 20 77 6f 72 6c 64 00`  son los valores hexadecimales correspondientes a los caracteres ASCII de la cadena "hello world", seguidos de un byte nulo (00) para indicar el final de la cadena.
 - Magic Boot Bytes: `55 aa` son los "Magic Boot Bytes" ubicados al final del archivo `000001f0`. Es una firma especial que indica a la BIOS que este es un dispositivo de arranque valido.
+- La primera instrucción del programa es `be 00 00 b4 0e`, que corresponde a `mov $0xeb40000`, `%esi`. Esto es de interés al analizar la salida del `objump`.
 
 Ahora, al hacer un `objdump`, se obtiene lo siguiente:
 
@@ -369,7 +382,7 @@ Disassembly of section .debug_str:
 En donde se ve:
 
 - Seccion `.text`:
-    - Direccion `0x00000000 <loop-0x5>`: `be 00 00 b4 0e` Mueve el valor `0xeb40000` al registro `%esi`.
+    - Direccion `0x00000000 <loop-0x5>`: `be 00 00 b4 0e` Mueve el valor `0xeb40000` al registro `%esi`. Esto significa que el segmento del código a partir del cual la imagen del programa a a comenzar a ejecutarse se encuentra en la dirección `0xeb40000`.
     - Direccion `0x00000005 <loop>:
         - `ac`: carga un byte de la memoria a la que apunta `%esi` en el registro `%al`.
         - `08 c0`: realiza una operación OR entre `%al` y `%al`.
@@ -405,7 +418,20 @@ Con eso en mente, ahora, al ejecutar la instruccion `c` dentro de gdb se avanza 
 
 <img src="./assets/g5.png" alt="gdb">
 
+#### Opción del linker
+
+La opción `--oformat` binary en el linker se utiliza para generar una salida en formato binario puro. Este formato es simplemente una secuencia continua de bytes que representan el contenido del programa, sin ningún tipo de encabezado, metadatos o estructura adicional que normalmente se incluye en formatos de archivo ejecutable como ELF (Executable and Linkable Format) o PE (Portable Executable). 
+Los siguientes son usos del formato binario puro:
+
+- **Sistemas Embebidos**: en el desarrollo de sistemas embebidos, los programas a menudo se cargan directamente en la memoria del dispositivo sin necesidad de un sistema operativo que interprete un formato de archivo ejecutable complejo. El formato binario puro permite cargar el programa directamente en la memoria desde una dirección específica.
+- **Cargas Directas en Hardware**: algunos dispositivos de hardware requieren firmware o programas en formato binario puro para cargarlos en la memoria interna del dispositivo. Esto es común en microcontroladores y otros tipos de hardware que no tienen un sistema operativo avanzado.
+- **Arranque de Sistemas**: los cargadores de arranque (bootloaders) suelen requerir el código en formato binario puro. Por ejemplo, al desarrollar un bootloader para un sistema operativo, el código del bootloader se guarda en formato binario para ser cargado directamente por la BIOS o el firmware del sistema.
+- **Análisis y Modificación de Binarios**: los archivos en formato binario puro son más fáciles de analizar y modificar en algunos contextos. Por ejemplo, en la ingeniería inversa y el análisis de malware, a veces es útil trabajar con el contenido binario puro sin la interferencia de los encabezados y estructuras adicionales.
+
+
 ### Modo protegido
+
+#### Código assembler para pasar a modo protegido sin macros
 
 Se crea el siguiente archivo:
 
@@ -549,6 +575,8 @@ Y, luego,
 
 <img src="./assets/pm1.png" alt="pmdebug">
 
+##### Cambio de los bits de acceso
+
 Ahora, si se cambian los bits de acceso del segmento de datos para que sea de lectura unicamente, al intentar escribir, se tiene un bucle infinito en la instruccion `add`. Para comprobar esto, se trabaja con el comando `si` se gdb, y al chequear el `eip` en qemu, se obtiene siempre la misma instruccion.
 
 El programa utilizado es el mismo que antes con una unica modificacion:
@@ -679,3 +707,19 @@ vga:
 Y el resultado mencionado es:
 
 <img src="./assets/si.png" alt="sidebug">
+
+Cuando intentamos escribir en un segmento de datos configurado como solo lectura, deberíamos obtener una excepción de protección general (General Protection Fault, GPF). Esto interrumpirá la ejecución del programa y típicamente se maneja mediante una interrupción (interrupción 13 en x86).
+
+#### Valores predeterminados de los registros de segmento
+
+En modo protegido, los registros de segmento no se cargan con valores literales o absolutos como se hacía en modo real. En lugar de eso, se cargan con selectores de segmento. Un selector de segmento es un valor que se utiliza para indexar una tabla de descriptores de segmento, específicamente la GDT (Tabla de Descriptores Globales) o la LDT (Tabla de Descriptores Locales). Los selectores de segmento contienen:
+
+- **Índice(15-3)**: indica la posición del descriptor en la GDT o LDT.
+- **TI (Table Indicator)(2)**: indica si el índice es para la GDT (TI=0) o la LDT (TI=1).
+- **RPL (Requested Privilege Level)(1-0)**: Indica el nivel de privilegio solicitado.
+
+#### ¿Por qué se usan selectores en modo protegido?
+
+- **Abstracción y Flexibilidad**: los selectores permiten que los programas y el sistema operativo trabajen con descriptores de segmento que pueden cambiar de ubicación en la memoria física sin necesidad de modificar el código del programa.
+- **Seguridad**: el uso de descriptores de segmento junto con la GDT y LDT permite implementar mecanismos de protección de memoria. Cada descriptor de segmento incluye información sobre el tamaño del segmento, su ubicación en la memoria, y los niveles de privilegio necesarios para acceder a él. Esto ayuda a prevenir que programas no autorizados accedan a áreas de memoria reservadas para el sistema operativo o para otros programas.
+- **Multitarea**: en un entorno multitarea, diferentes tareas pueden tener diferentes LDTs, lo que permite que cada tarea tenga su propio espacio de direcciones segmentado y protegido. La GDT es global y común para todos, pero la LDT es específica para cada tarea, permitiendo aislamiento y protección entre tareas.
