@@ -10,4 +10,12 @@ int main() {
     return 0;
 }
 
-// para compilar gcc -m32 -o convert test.c TP2.o
+// para compilar gcc -m32 -o -g convert test.c TP2.o
+
+/*
+
+nasm -f elf32 -o TP2.o TP2.asm
+gcc -g -m32 -c -o test.o test.c
+gcc -g -m32 -o convert test.o TP2.o
+
+*/
