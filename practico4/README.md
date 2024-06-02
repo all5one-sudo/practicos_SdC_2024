@@ -12,7 +12,7 @@ Se hace fork de un repositorio de GitLab, luego se lo clona, y se lo inserta com
 sudo apt-get install build-essential checkinstall 
 ```
 
-## Primera parte
+## Practico
 
 Para esta primera parte, al navegar a la carpeta `module`, se debe instanciar el modulo propuesto, y para ello se corre el siguiente comando:
 
@@ -1064,3 +1064,426 @@ virtio_pci_modern_dev 16384 1 virtio_pci, Live 0x0000000000000000
 ```
 
 Lo que corrobora que el modulo se descargo del kernel correctamente.
+
+A modo de agregar informacion, se tiene el siguiente codigo a compilar para el modulo:
+
+```c
+#include <linux/module.h>	/* Requerido por todos los módulos */
+#include <linux/kernel.h>	/* Definición de KERN_INFO */
+MODULE_LICENSE("GPL"); 	/*  Licencia del modulo */
+MODULE_DESCRIPTION("Primer modulo ejemplo");
+MODULE_AUTHOR("Catedra de SdeC");
+
+/* Función que se invoca cuando se carga el módulo en el kernel */
+int modulo_lin_init(void)
+{
+	printk(KERN_INFO "Modulo cargado en el kernel.\n");
+
+	/* Devolver 0 para indicar una carga correcta del módulo */
+	return 0;
+}
+
+/* Función que se invoca cuando se descarga el módulo del kernel */
+void modulo_lin_clean(void)
+{
+	printk(KERN_INFO "Modulo descargado del kernel.\n");
+}
+
+/* Declaración de funciones init y exit */
+module_init(modulo_lin_init);
+module_exit(modulo_lin_clean);
+```
+
+Y el Makefile utilizado es el siguiente:
+
+```bash
+obj-m +=  mimodulo.o
+
+all:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+```
+
+En donde es importante la sentencia `uname -r`, la cual brinda informacion del kernel que esta siendo utilizado por el sistema operativo. En el caso de la maquina utilizada para la compilacion, se tiene `6.1.0-21-arm64`, luego, en WSL, utilizado para algunos codigos anteriormente, se tiene `5.15.146.1-microsoft-standard-WSL2`.
+
+## Desafio 1
+
+### Checkinstall
+
+Es un programa para sistemas operativos Unix-Like que permite instalacion y desinstalacion de software compilado desde el codigo fuente para ser administrado por un sistema de gestion de paquetes. Permite que luego de la compilacion se obtengan paquetes compatibles con:
+
+- Slackware
+- RPM
+- Debian
+
+La principal ventaja por sobre `make install` es la posibilidad de desinstalar el paquete usando su sistema de gestion de paquetes.
+
+#### Uso
+
+Para ser usado, normalmente luego del script de configuracion se ejecuta la siguiente secuencia de comandos:
+
+```bash
+./configure
+make
+sudo checkinstall #(as root)
+```
+
+#### Ejemplo con un Hello World
+
+Se crea un pequeño archivo de C que permita probar una simple salida por consola:
+
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Probando checkinstall, saludos SdC!\n");
+    return 0;
+}
+```
+
+Se lo compila ahora con `gcc helloWorld.c -o helloWorld`. Para eso se crea un Makefile:
+
+```bash
+all:
+	gcc helloWorld.c -o helloWorld
+
+install:
+	install -D helloWorld /usr/local/bin/helloWorld
+
+clean:
+	rm -f helloWorld
+```
+
+Luego de `make`, se llama a `sudo checkinstall`, y se pide una descripcion, asi como tambien se termina de compilar y crear el paquete. Ahora, cada que se llama a `helloWorld` en consola se obtiene la salida deseada.
+
+<img src="./assets/helloWorld.png">
+
+## Desafio 2
+
+### Funciones disponibles en un programa y un modulo
+
+Un programa es un conjunto completo de código que puede ejecutarse de manera independiente. Generalmente, tiene una función principal y puede incluir múltiples módulos y bibliotecas. Un módulo es un archivo que contiene definiciones de funciones, clases y variables que pueden ser reutilizadas en otros programas y módulos. Un módulo puede ser importado en otros módulos o programas.
+
+Las funciones disponibles en un programa son:
+
+- Ejecución Principal
+- Importación de Módulos
+- Interacción con el Usuario
+- Manejo de Archivos
+- Ejecución de Tareas
+
+Mientras que, las funciones disponibles en un módulo son:
+
+- Definición de Funciones y Clases
+- Variables Globales
+- Constantes
+- Importación de Otros Módulos
+- Encapsulación
+- Reutilización
+
+La diferencia radica en que un programa está diseñado para ejecutarse de manera independiente, mientras que un módulo está diseñado para ser importado y reutilizado en otros programas o módulos, es decir, el objetivo de un programa es resolver una tarea o problema específico mientras que un módulo se enfoca en dar funcionalidades y que estas se puedan utilizar en dichos programas.
+
+### Espacio de usuario o espacio de kernel
+
+El espacio de usuario es el entorno en el cual se ejecutan las aplicaciones y programas. En cambio, el espacio del kernel es el entorno en el que se ejecuta el núcleo del sistema operativo. Este entorno tiene acceso completo y sin restricciones al hardware y a todos los recursos del sistema. 
+
+### Espacio de datos
+
+Se refiere a la memoria en la que se almacenan los datos durante la ejecución de un programa. Hay dos tipos de espacio de datos, el espacio de datos de usuario que es el área de memoria donde se ejecutan las aplicaciones y programas del usuario, sus principales características son el acceso restringido para evitar que las aplicaciones interfieran con el sistema operativo. Otra característica es la seguridad, se protege cada aplicación del acceso no autorizado a la memoria de otras aplicaciones. El otro es el espacio de datos del Kernel, el cual es el área de memoria reservada para el núcleo del sistema operativo, sus principales características son el acceso sin restricción, en donde el kernel tiene acceso completo a todo el hardware y la memoria del sistema. Como también gestiona recursos del sistema, memoria, dispositivos de hardware y proporciona servicios a las aplicaciones.
+
+### Drivers. Contenido de /dev
+
+Los drivers son programas que permiten que el sistema operativo se comunique con el hardware del sistema. Actúan como intermediarios, traduciendo las instrucciones del sistema operativo en acciones específicas que el hardware puede ejecutar. El directorio `/dev` en linux contiene archivos especiales que representan dispositivos del sistema. Estos archivos permiten al software interactuar con el hardware mediante el acceso a estos archivos como si fueran archivos normales. Los mas comunes son:
+
+- `/dev/sda`: se refiere al primer disco duro.
+- `/dev/tty`: se refiere a las terminales.
+- `/dev/null`: Dispositivo que descarta toda la entrada.
+- `/dev/random`: Generador de números aleatorios.
+- `/dev/loop0`: Primer dispositivo de loopback, usado para montar archivos como si fueran discos.
+
+Si se ejecuta la sentencia `ls -l dev` en un computador, se obtiene algo como lo siguiente:
+
+```bash
+total 0
+crw-r--r--  1 root root       10,   235 jun  1 07:45 autofs
+drwxr-xr-x  2 root root             720 jun  1 07:51 block
+drwxr-xr-x  2 root root              60 jun  1 07:45 bsg
+crw-------  1 root root       10,   234 jun  1 07:45 btrfs-control
+drwxr-xr-x  3 root root              60 jun  1 07:45 bus
+drwxr-xr-x  2 root root            4440 jun  1 21:08 char
+crw--w----  1 root tty         5,     1 jun  1 07:45 console
+lrwxrwxrwx  1 root root              11 jun  1 07:45 core -> /proc/kcore
+drwxr-xr-x  6 root root             120 jun  1 07:45 cpu
+crw-------  1 root root       10,   121 jun  1 07:45 cpu_dma_latency
+crw-------  1 root root       10,   203 jun  1 07:45 cuse
+drwxr-xr-x  7 root root             140 jun  1 07:45 disk
+drwxr-xr-x  2 root root              60 jun  1 07:45 dma_heap
+drwxr-xr-x  3 root root             100 jun  1 07:45 dri
+crw-------  1 root root      236,     0 jun  1 07:45 drm_dp_aux0
+crw-------  1 root root      236,     1 jun  1 07:45 drm_dp_aux1
+crw-------  1 root root       10,   123 jun  1 07:45 ecryptfs
+crw-rw----  1 root video      29,     0 jun  1 07:45 fb0
+lrwxrwxrwx  1 root root              13 jun  1 07:45 fd -> /proc/self/fd
+crw-rw-rw-  1 root root        1,     7 jun  1 07:45 full
+crw-rw-rw-  1 root root       10,   229 jun  1 07:45 fuse
+crw-------  1 root root      254,     0 jun  1 07:45 gpiochip0
+crw-------  1 root root      241,     0 jun  1 20:52 hidraw0
+crw-------  1 root root      241,     1 jun  1 21:08 hidraw1
+crw-------  1 root root      241,     2 jun  1 21:08 hidraw2
+crw-------  1 root root       10,   228 jun  1 07:45 hpet
+drwxr-xr-x  2 root root               0 jun  1 07:45 hugepages
+crw-------  1 root root       10,   183 jun  1 07:45 hwrng
+crw-------  1 root root       89,     0 jun  1 07:45 i2c-0
+crw-------  1 root root       89,     1 jun  1 07:45 i2c-1
+crw-------  1 root root       89,     2 jun  1 07:45 i2c-2
+crw-------  1 root root       89,     3 jun  1 07:45 i2c-3
+crw-------  1 root root       89,     4 jun  1 07:45 i2c-4
+crw-------  1 root root       89,     5 jun  1 07:45 i2c-5
+crw-------  1 root root       89,     6 jun  1 07:45 i2c-6
+lrwxrwxrwx  1 root root              12 jun  1 07:45 initctl -> /run/initctl
+drwxr-xr-x  4 root root             400 jun  1 21:08 input
+crw-r--r--  1 root root        1,    11 jun  1 07:45 kmsg
+crw-rw----+ 1 root kvm        10,   232 jun  1 07:45 kvm
+lrwxrwxrwx  1 root root              28 jun  1 07:45 log -> /run/systemd/journal/dev-log
+brw-rw----  1 root disk        7,     0 jun  1 07:45 loop0
+brw-rw----  1 root disk        7,     1 jun  1 07:45 loop1
+brw-rw----  1 root disk        7,    10 jun  1 07:45 loop10
+brw-rw----  1 root disk        7,    11 jun  1 07:45 loop11
+brw-rw----  1 root disk        7,    12 jun  1 07:45 loop12
+brw-rw----  1 root disk        7,    13 jun  1 07:45 loop13
+brw-rw----  1 root disk        7,    14 jun  1 07:45 loop14
+brw-rw----  1 root disk        7,    15 jun  1 07:45 loop15
+brw-rw----  1 root disk        7,    16 jun  1 07:45 loop16
+brw-rw----  1 root disk        7,    17 jun  1 07:45 loop17
+brw-rw----  1 root disk        7,    18 jun  1 07:45 loop18
+brw-rw----  1 root disk        7,    19 jun  1 07:45 loop19
+brw-rw----  1 root disk        7,     2 jun  1 07:45 loop2
+brw-rw----  1 root disk        7,    20 jun  1 07:45 loop20
+brw-rw----  1 root disk        7,    21 jun  1 07:45 loop21
+brw-rw----  1 root disk        7,    22 jun  1 07:45 loop22
+brw-rw----  1 root disk        7,    23 jun  1 07:45 loop23
+brw-rw----  1 root disk        7,    24 jun  1 07:45 loop24
+brw-rw----  1 root disk        7,    25 jun  1 07:45 loop25
+brw-rw----  1 root disk        7,    26 jun  1 07:45 loop26
+brw-rw----  1 root disk        7,    27 jun  1 07:51 loop27
+brw-rw----  1 root disk        7,    28 jun  1 07:45 loop28
+brw-rw----  1 root disk        7,    29 jun  1 07:45 loop29
+brw-rw----  1 root disk        7,     3 jun  1 07:45 loop3
+brw-rw----  1 root disk        7,    30 jun  1 07:45 loop30
+brw-rw----  1 root disk        7,     4 jun  1 07:45 loop4
+brw-rw----  1 root disk        7,     5 jun  1 07:45 loop5
+brw-rw----  1 root disk        7,     6 jun  1 07:45 loop6
+brw-rw----  1 root disk        7,     7 jun  1 07:45 loop7
+brw-rw----  1 root disk        7,     8 jun  1 07:45 loop8
+brw-rw----  1 root disk        7,     9 jun  1 07:45 loop9
+crw-rw----  1 root disk       10,   237 jun  1 07:45 loop-control
+drwxr-xr-x  2 root root              60 jun  1 07:45 mapper
+crw-------  1 root root       10,   227 jun  1 07:45 mcelog
+crw-rw----+ 1 root video     238,     0 jun  1 07:45 media0
+crw-------  1 root root      240,     0 jun  1 07:45 mei0
+crw-r-----  1 root kmem        1,     1 jun  1 07:45 mem
+drwxrwxrwt  2 root root              40 jun  1 07:45 mqueue
+drwxr-xr-x  2 root root              60 jun  1 07:45 net
+crw-rw-rw-  1 root root        1,     3 jun  1 07:45 null
+crw-------  1 root root       10,   144 jun  1 07:45 nvram
+crw-r-----  1 root kmem        1,     4 jun  1 07:45 port
+crw-------  1 root root      108,     0 jun  1 07:45 ppp
+crw-------  1 root root       10,     1 jun  1 07:45 psaux
+crw-rw-rw-  1 root tty         5,     2 jun  1 22:16 ptmx
+crw-------  1 root root      246,     0 jun  1 07:45 ptp0
+drwxr-xr-x  2 root root               0 jun  1 07:45 pts
+crw-rw-rw-  1 root root        1,     8 jun  1 07:45 random
+crw-rw-r--+ 1 root root       10,   242 jun  1 07:45 rfkill
+lrwxrwxrwx  1 root root               4 jun  1 07:45 rtc -> rtc0
+crw-------  1 root root      248,     0 jun  1 07:45 rtc0
+brw-rw----  1 root disk        8,     0 jun  1 07:45 sda
+brw-rw----  1 root disk        8,     1 jun  1 07:45 sda1
+brw-rw----  1 root disk        8,     2 jun  1 07:45 sda2
+crw-rw----  1 root disk       21,     0 jun  1 07:45 sg0
+crw-------  1 root root       10,   126 jun  1 07:45 sgx_provision
+crw-rw----  1 root sgx        10,   125 jun  1 07:45 sgx_vepc
+drwxrwxrwt  2 root root              40 jun  1 22:16 shm
+crw-------  1 root root       10,   231 jun  1 07:45 snapshot
+drwxr-xr-x  4 root root             340 jun  1 21:08 snd
+lrwxrwxrwx  1 root root              15 jun  1 07:45 stderr -> /proc/self/fd/2
+lrwxrwxrwx  1 root root              15 jun  1 07:45 stdin -> /proc/self/fd/0
+lrwxrwxrwx  1 root root              15 jun  1 07:45 stdout -> /proc/self/fd/1
+crw-rw----  1 tss  root       10,   224 jun  1 07:45 tpm0
+crw-rw----  1 tss  tss       253, 65536 jun  1 07:45 tpmrm0
+crw-rw-rw-  1 root tty         5,     0 jun  1 22:13 tty
+crw--w----  1 root tty         4,     0 jun  1 07:45 tty0
+crw--w----  1 root tty         4,     1 jun  1 07:45 tty1
+crw--w----  1 root tty         4,    10 jun  1 07:45 tty10
+crw--w----  1 root tty         4,    11 jun  1 07:45 tty11
+crw--w----  1 root tty         4,    12 jun  1 07:45 tty12
+crw--w----  1 root tty         4,    13 jun  1 07:45 tty13
+crw--w----  1 root tty         4,    14 jun  1 07:45 tty14
+crw--w----  1 root tty         4,    15 jun  1 07:45 tty15
+crw--w----  1 root tty         4,    16 jun  1 07:45 tty16
+crw--w----  1 root tty         4,    17 jun  1 07:45 tty17
+crw--w----  1 root tty         4,    18 jun  1 07:45 tty18
+crw--w----  1 root tty         4,    19 jun  1 07:45 tty19
+crw--w----  1 nico tty         4,     2 jun  1 07:45 tty2
+crw--w----  1 root tty         4,    20 jun  1 07:45 tty20
+crw--w----  1 root tty         4,    21 jun  1 07:45 tty21
+crw--w----  1 root tty         4,    22 jun  1 07:45 tty22
+crw--w----  1 root tty         4,    23 jun  1 07:45 tty23
+crw--w----  1 root tty         4,    24 jun  1 07:45 tty24
+crw--w----  1 root tty         4,    25 jun  1 07:45 tty25
+crw--w----  1 root tty         4,    26 jun  1 07:45 tty26
+crw--w----  1 root tty         4,    27 jun  1 07:45 tty27
+crw--w----  1 root tty         4,    28 jun  1 07:45 tty28
+crw--w----  1 root tty         4,    29 jun  1 07:45 tty29
+crw--w----  1 root tty         4,     3 jun  1 07:45 tty3
+crw--w----  1 root tty         4,    30 jun  1 07:45 tty30
+crw--w----  1 root tty         4,    31 jun  1 07:45 tty31
+crw--w----  1 root tty         4,    32 jun  1 07:45 tty32
+crw--w----  1 root tty         4,    33 jun  1 07:45 tty33
+crw--w----  1 root tty         4,    34 jun  1 07:45 tty34
+crw--w----  1 root tty         4,    35 jun  1 07:45 tty35
+crw--w----  1 root tty         4,    36 jun  1 07:45 tty36
+crw--w----  1 root tty         4,    37 jun  1 07:45 tty37
+crw--w----  1 root tty         4,    38 jun  1 07:45 tty38
+crw--w----  1 root tty         4,    39 jun  1 07:45 tty39
+crw--w----  1 root tty         4,     4 jun  1 07:45 tty4
+crw--w----  1 root tty         4,    40 jun  1 07:45 tty40
+crw--w----  1 root tty         4,    41 jun  1 07:45 tty41
+crw--w----  1 root tty         4,    42 jun  1 07:45 tty42
+crw--w----  1 root tty         4,    43 jun  1 07:45 tty43
+crw--w----  1 root tty         4,    44 jun  1 07:45 tty44
+crw--w----  1 root tty         4,    45 jun  1 07:45 tty45
+crw--w----  1 root tty         4,    46 jun  1 07:45 tty46
+crw--w----  1 root tty         4,    47 jun  1 07:45 tty47
+crw--w----  1 root tty         4,    48 jun  1 07:45 tty48
+crw--w----  1 root tty         4,    49 jun  1 07:45 tty49
+crw--w----  1 root tty         4,     5 jun  1 07:45 tty5
+crw--w----  1 root tty         4,    50 jun  1 07:45 tty50
+crw--w----  1 root tty         4,    51 jun  1 07:45 tty51
+crw--w----  1 root tty         4,    52 jun  1 07:45 tty52
+crw--w----  1 root tty         4,    53 jun  1 07:45 tty53
+crw--w----  1 root tty         4,    54 jun  1 07:45 tty54
+crw--w----  1 root tty         4,    55 jun  1 07:45 tty55
+crw--w----  1 root tty         4,    56 jun  1 07:45 tty56
+crw--w----  1 root tty         4,    57 jun  1 07:45 tty57
+crw--w----  1 root tty         4,    58 jun  1 07:45 tty58
+crw--w----  1 root tty         4,    59 jun  1 07:45 tty59
+crw--w----  1 root tty         4,     6 jun  1 07:45 tty6
+crw--w----  1 root tty         4,    60 jun  1 07:45 tty60
+crw--w----  1 root tty         4,    61 jun  1 07:45 tty61
+crw--w----  1 root tty         4,    62 jun  1 07:45 tty62
+crw--w----  1 root tty         4,    63 jun  1 07:45 tty63
+crw--w----  1 root tty         4,     7 jun  1 07:45 tty7
+crw--w----  1 root tty         4,     8 jun  1 07:45 tty8
+crw--w----  1 root tty         4,     9 jun  1 07:45 tty9
+crw-------  1 root root        5,     3 jun  1 07:45 ttyprintk
+crw-rw----  1 root dialout     4,    64 jun  1 07:45 ttyS0
+crw-rw----  1 root dialout     4,    65 jun  1 07:45 ttyS1
+crw-rw----  1 root dialout     4,    74 jun  1 07:45 ttyS10
+crw-rw----  1 root dialout     4,    75 jun  1 07:45 ttyS11
+crw-rw----  1 root dialout     4,    76 jun  1 07:45 ttyS12
+crw-rw----  1 root dialout     4,    77 jun  1 07:45 ttyS13
+crw-rw----  1 root dialout     4,    78 jun  1 07:45 ttyS14
+crw-rw----  1 root dialout     4,    79 jun  1 07:45 ttyS15
+crw-rw----  1 root dialout     4,    80 jun  1 07:45 ttyS16
+crw-rw----  1 root dialout     4,    81 jun  1 07:45 ttyS17
+crw-rw----  1 root dialout     4,    82 jun  1 07:45 ttyS18
+crw-rw----  1 root dialout     4,    83 jun  1 07:45 ttyS19
+crw-rw----  1 root dialout     4,    66 jun  1 07:45 ttyS2
+crw-rw----  1 root dialout     4,    84 jun  1 07:45 ttyS20
+crw-rw----  1 root dialout     4,    85 jun  1 07:45 ttyS21
+crw-rw----  1 root dialout     4,    86 jun  1 07:45 ttyS22
+crw-rw----  1 root dialout     4,    87 jun  1 07:45 ttyS23
+crw-rw----  1 root dialout     4,    88 jun  1 07:45 ttyS24
+crw-rw----  1 root dialout     4,    89 jun  1 07:45 ttyS25
+crw-rw----  1 root dialout     4,    90 jun  1 07:45 ttyS26
+crw-rw----  1 root dialout     4,    91 jun  1 07:45 ttyS27
+crw-rw----  1 root dialout     4,    92 jun  1 07:45 ttyS28
+crw-rw----  1 root dialout     4,    93 jun  1 07:45 ttyS29
+crw-rw----  1 root dialout     4,    67 jun  1 07:45 ttyS3
+crw-rw----  1 root dialout     4,    94 jun  1 07:45 ttyS30
+crw-rw----  1 root dialout     4,    95 jun  1 07:45 ttyS31
+crw-rw----  1 root dialout     4,    68 jun  1 07:45 ttyS4
+crw-rw----  1 root dialout     4,    69 jun  1 07:45 ttyS5
+crw-rw----  1 root dialout     4,    70 jun  1 07:45 ttyS6
+crw-rw----  1 root dialout     4,    71 jun  1 07:45 ttyS7
+crw-rw----  1 root dialout     4,    72 jun  1 07:45 ttyS8
+crw-rw----  1 root dialout     4,    73 jun  1 07:45 ttyS9
+crw-rw----  1 root kvm        10,   122 jun  1 07:45 udmabuf
+crw-------  1 root root       10,   239 jun  1 07:45 uhid
+crw-------  1 root root       10,   223 jun  1 07:45 uinput
+crw-rw-rw-  1 root root        1,     9 jun  1 07:45 urandom
+drwxr-xr-x  2 root root              60 jun  1 21:08 usb
+crw-------  1 root root       10,   124 jun  1 07:45 userfaultfd
+crw-------  1 root root       10,   240 jun  1 07:45 userio
+drwxr-xr-x  4 root root              80 jun  1 07:45 v4l
+crw-------  1 root root       10,   120 jun  1 07:45 vboxdrv
+crw-rw-rw-  1 root root       10,   119 jun  1 07:45 vboxdrvu
+crw-------  1 root root       10,   118 jun  1 07:45 vboxnetctl
+drwxr-x---  3 root vboxusers         60 jun  1 07:45 vboxusb
+crw-rw----  1 root tty         7,     0 jun  1 07:45 vcs
+crw-rw----  1 root tty         7,     1 jun  1 07:45 vcs1
+crw-rw----  1 root tty         7,     2 jun  1 07:45 vcs2
+crw-rw----  1 root tty         7,     3 jun  1 07:45 vcs3
+crw-rw----  1 root tty         7,     4 jun  1 07:45 vcs4
+crw-rw----  1 root tty         7,     5 jun  1 07:45 vcs5
+crw-rw----  1 root tty         7,     6 jun  1 07:45 vcs6
+crw-rw----  1 root tty         7,   128 jun  1 07:45 vcsa
+crw-rw----  1 root tty         7,   129 jun  1 07:45 vcsa1
+crw-rw----  1 root tty         7,   130 jun  1 07:45 vcsa2
+crw-rw----  1 root tty         7,   131 jun  1 07:45 vcsa3
+crw-rw----  1 root tty         7,   132 jun  1 07:45 vcsa4
+crw-rw----  1 root tty         7,   133 jun  1 07:45 vcsa5
+crw-rw----  1 root tty         7,   134 jun  1 07:45 vcsa6
+crw-rw----  1 root tty         7,    64 jun  1 07:45 vcsu
+crw-rw----  1 root tty         7,    65 jun  1 07:45 vcsu1
+crw-rw----  1 root tty         7,    66 jun  1 07:45 vcsu2
+crw-rw----  1 root tty         7,    67 jun  1 07:45 vcsu3
+crw-rw----  1 root tty         7,    68 jun  1 07:45 vcsu4
+crw-rw----  1 root tty         7,    69 jun  1 07:45 vcsu5
+crw-rw----  1 root tty         7,    70 jun  1 07:45 vcsu6
+drwxr-xr-x  2 root root              60 jun  1 07:45 vfio
+crw-------  1 root root       10,   127 jun  1 07:45 vga_arbiter
+crw-------  1 root root       10,   137 jun  1 07:45 vhci
+crw-rw----  1 root kvm        10,   238 jun  1 07:45 vhost-net
+crw-rw----  1 root kvm        10,   241 jun  1 07:45 vhost-vsock
+crw-rw----+ 1 root video      81,     0 jun  1 07:45 video0
+crw-rw----+ 1 root video      81,     1 jun  1 07:45 video1
+crw-rw-rw-  1 root root        1,     5 jun  1 07:45 zero
+crw-------  1 root root       10,   249 jun  1 07:45 zfs
+```
+
+Y, al llamar a `/dev df -h`:
+
+```bash
+S.ficheros     Tamaño Usados  Disp Uso% Montado en
+tmpfs            772M   2,2M  770M   1% /run
+/dev/sda2        219G   124G   84G  60% /
+tmpfs            3,8G   258M  3,6G   7% /dev/shm
+tmpfs            5,0M   4,0K  5,0M   1% /run/lock
+efivarfs         108K   102K  1,6K  99% /sys/firmware/efi/efivars
+tmpfs            3,8G      0  3,8G   0% /run/qemu
+/dev/sda1        511M   6,1M  505M   2% /boot/efi
+tmpfs            772M   152K  772M   1% /run/user/1000
+```
+
+Donde el fichero `tmpfs` es **Temporary File System**, es un Sistema de archivos temporal en RAM, usado para datos que cambian frecuentemente y no necesitan ser persistentes.
+
+- `/dev/sda2` es la partición principal del disco duro, contiene el sistema operativo y los datos de usuario.
+- `tmpfs - /dev/shm` se refiere a Memoria compartida, usada por procesos para comunicarse entre sí. Está montada en /dev/shm
+- `tmpfs - /run/lock` se refiere a Bloqueo de archivos temporales, usado para gestionar archivos de bloqueo que previenen que múltiples procesos accedan al mismo recurso simultáneamente. Está montado en /run/lock.
+- `efivarfs - /sys/firmware/efi/efivars` se trata de un Sistema de archivos especial para variables EFI (Extensible Firmware Interface), usado por el firmware UEFI. Está montado en /sys/firmware/efi/efivars.
+- `tmpfs - /run/qemu` se trata de un Sistema de archivos temporal que puede ser usado por máquinas virtuales. Está montado en /run/qemu.
+- `/dev/sda1 - /boot/efi` es la Partición EFI, contiene archivos necesarios para arrancar el sistema en modo UEFI.
+- `tmpfs - /run/user/1000` es el Directorio temporal para el usuario con ID 1000, generalmente el primer usuario creado en el sistema.
+
+
+
+
+
+
+
+
+
+
