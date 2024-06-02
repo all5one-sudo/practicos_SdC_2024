@@ -1043,4 +1043,14 @@ Ahora, se ejecuta la instruccion `sudo rmmod mimodulo`, cuyo objetivo es quitar 
 [ 1585.745148] Modulo descargado del kernel.
 ```
 
-En donde puede corroborarse en el ultimo print la correcta ejecucion de la sentencia.
+En donde puede corroborarse en el ultimo print la correcta ejecucion de la sentencia. No es posible ejecutar `modinfo` desde Debian, incluso con este comando instalado. Se busco informacion en foros, y parece ser un bug comun.
+
+Al ejecutar `cat /proc/modules | grep mod` se encuentra:
+
+```bash
+dm_mod 143360 0 - Live 0x0000000000000000
+dax 32768 1 dm_mod, Live 0x0000000000000000
+virtio_pci_modern_dev 16384 1 virtio_pci, Live 0x0000000000000000
+```
+
+Lo que corrobora que el modulo se descargo del kernel correctamente.
