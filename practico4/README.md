@@ -1043,7 +1043,17 @@ Ahora, se ejecuta la instruccion `sudo rmmod mimodulo`, cuyo objetivo es quitar 
 [ 1585.745148] Modulo descargado del kernel.
 ```
 
-En donde puede corroborarse en el ultimo print la correcta ejecucion de la sentencia. No es posible ejecutar `modinfo` desde Debian, incluso con este comando instalado. Se busco informacion en foros, y parece ser un bug comun.
+Al llamar a la instruccion `modinfo mimodulo.ko` se obtiene:
+
+```
+filename:       /mnt/e/Documentos/GitHub/practicos_SdC_2024/practico4/kernel-modules/part1/module/mimodulo.ko
+author:         Catedra de SdeC
+description:    Primer modulo ejemplo
+license:        GPL
+depends:        
+name:           mimodulo
+vermagic:       6.1.0-21-arm64 SMP mod_unload modversions aarch64
+```
 
 Al ejecutar `cat /proc/modules | grep mod` se encuentra:
 
