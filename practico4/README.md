@@ -2005,6 +2005,3 @@ int main()
 - Un programa puede instalar un "signal handler" (manejador de señales) personalizado para manejar SIGSEGV usando la función signal o sigaction.
 - Este manejador es una función que se ejecuta cuando se recibe la señal. Puede ser usado para tareas como registrar información de depuración, liberar recursos, o intentar una recuperación limitada.
 
-
-
-
