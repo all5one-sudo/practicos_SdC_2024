@@ -1,0 +1,1 @@
+cmd_/home/debian/Documents/practicos_SdC_2024/practico5/FuentesDrv2/modules.order := {   echo /home/debian/Documents/practicos_SdC_2024/practico5/FuentesDrv2/drv2.ko; :; } > /home/debian/Documents/practicos_SdC_2024/practico5/FuentesDrv2/modules.order
