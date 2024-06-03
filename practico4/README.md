@@ -12,6 +12,377 @@ Se hace fork de un repositorio de GitLab, luego se lo clona, y se lo inserta com
 sudo apt-get install build-essential checkinstall 
 ```
 
+## Desafio 1
+
+### Checkinstall
+
+Es un programa para sistemas operativos Unix-Like que permite instalacion y desinstalacion de software compilado desde el codigo fuente para ser administrado por un sistema de gestion de paquetes. Permite que luego de la compilacion se obtengan paquetes compatibles con:
+
+- Slackware
+- RPM
+- Debian
+
+La principal ventaja por sobre `make install` es la posibilidad de desinstalar el paquete usando su sistema de gestion de paquetes.
+
+#### Uso
+
+Para ser usado, normalmente luego del script de configuracion se ejecuta la siguiente secuencia de comandos:
+
+```bash
+./configure
+make
+sudo checkinstall #(as root)
+```
+
+#### Ejemplo con un Hello World
+
+Se crea un pequeño archivo de C que permita probar una simple salida por consola:
+
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Probando checkinstall, saludos SdC!\n");
+    return 0;
+}
+```
+
+Se lo compila ahora con `gcc helloWorld.c -o helloWorld`. Para eso se crea un Makefile:
+
+```bash
+all:
+	gcc helloWorld.c -o helloWorld
+
+install:
+	install -D helloWorld /usr/local/bin/helloWorld
+
+clean:
+	rm -f helloWorld
+```
+
+Luego de `make`, se llama a `sudo checkinstall`, y se pide una descripcion, asi como tambien se termina de compilar y crear el paquete. Ahora, cada que se llama a `helloWorld` en consola se obtiene la salida deseada.
+
+<img src="./assets/helloWorld.png">
+
+## Desafio 2
+
+### Funciones disponibles en un programa y un modulo
+
+Un programa es un conjunto completo de código que puede ejecutarse de manera independiente. Generalmente, tiene una función principal y puede incluir múltiples módulos y bibliotecas. Un módulo es un archivo que contiene definiciones de funciones, clases y variables que pueden ser reutilizadas en otros programas y módulos. Un módulo puede ser importado en otros módulos o programas.
+
+Las funciones disponibles en un programa son:
+
+- Ejecución Principal
+- Importación de Módulos
+- Interacción con el Usuario
+- Manejo de Archivos
+- Ejecución de Tareas
+
+Mientras que, las funciones disponibles en un módulo son:
+
+- Definición de Funciones y Clases
+- Variables Globales
+- Constantes
+- Importación de Otros Módulos
+- Encapsulación
+- Reutilización
+
+La diferencia radica en que un programa está diseñado para ejecutarse de manera independiente, mientras que un módulo está diseñado para ser importado y reutilizado en otros programas o módulos, es decir, el objetivo de un programa es resolver una tarea o problema específico mientras que un módulo se enfoca en dar funcionalidades y que estas se puedan utilizar en dichos programas.
+
+### Espacio de usuario o espacio de kernel
+
+El espacio de usuario es el entorno en el cual se ejecutan las aplicaciones y programas. En cambio, el espacio del kernel es el entorno en el que se ejecuta el núcleo del sistema operativo. Este entorno tiene acceso completo y sin restricciones al hardware y a todos los recursos del sistema. 
+
+### Espacio de datos
+
+Se refiere a la memoria en la que se almacenan los datos durante la ejecución de un programa. Hay dos tipos de espacio de datos, el espacio de datos de usuario que es el área de memoria donde se ejecutan las aplicaciones y programas del usuario, sus principales características son el acceso restringido para evitar que las aplicaciones interfieran con el sistema operativo. Otra característica es la seguridad, se protege cada aplicación del acceso no autorizado a la memoria de otras aplicaciones. El otro es el espacio de datos del Kernel, el cual es el área de memoria reservada para el núcleo del sistema operativo, sus principales características son el acceso sin restricción, en donde el kernel tiene acceso completo a todo el hardware y la memoria del sistema. Como también gestiona recursos del sistema, memoria, dispositivos de hardware y proporciona servicios a las aplicaciones.
+
+### Drivers. Contenido de /dev
+
+Los drivers son programas que permiten que el sistema operativo se comunique con el hardware del sistema. Actúan como intermediarios, traduciendo las instrucciones del sistema operativo en acciones específicas que el hardware puede ejecutar. El directorio `/dev` en linux contiene archivos especiales que representan dispositivos del sistema. Estos archivos permiten al software interactuar con el hardware mediante el acceso a estos archivos como si fueran archivos normales. Los mas comunes son:
+
+- `/dev/sda`: se refiere al primer disco duro.
+- `/dev/tty`: se refiere a las terminales.
+- `/dev/null`: Dispositivo que descarta toda la entrada.
+- `/dev/random`: Generador de números aleatorios.
+- `/dev/loop0`: Primer dispositivo de loopback, usado para montar archivos como si fueran discos.
+
+Si se ejecuta la sentencia `ls -l dev` en un computador, se obtiene algo como lo siguiente:
+
+```bash
+total 0
+crw-r--r--  1 root root       10,   235 jun  1 07:45 autofs
+drwxr-xr-x  2 root root             720 jun  1 07:51 block
+drwxr-xr-x  2 root root              60 jun  1 07:45 bsg
+crw-------  1 root root       10,   234 jun  1 07:45 btrfs-control
+drwxr-xr-x  3 root root              60 jun  1 07:45 bus
+drwxr-xr-x  2 root root            4440 jun  1 21:08 char
+crw--w----  1 root tty         5,     1 jun  1 07:45 console
+lrwxrwxrwx  1 root root              11 jun  1 07:45 core -> /proc/kcore
+drwxr-xr-x  6 root root             120 jun  1 07:45 cpu
+crw-------  1 root root       10,   121 jun  1 07:45 cpu_dma_latency
+crw-------  1 root root       10,   203 jun  1 07:45 cuse
+drwxr-xr-x  7 root root             140 jun  1 07:45 disk
+drwxr-xr-x  2 root root              60 jun  1 07:45 dma_heap
+drwxr-xr-x  3 root root             100 jun  1 07:45 dri
+crw-------  1 root root      236,     0 jun  1 07:45 drm_dp_aux0
+crw-------  1 root root      236,     1 jun  1 07:45 drm_dp_aux1
+crw-------  1 root root       10,   123 jun  1 07:45 ecryptfs
+crw-rw----  1 root video      29,     0 jun  1 07:45 fb0
+lrwxrwxrwx  1 root root              13 jun  1 07:45 fd -> /proc/self/fd
+crw-rw-rw-  1 root root        1,     7 jun  1 07:45 full
+crw-rw-rw-  1 root root       10,   229 jun  1 07:45 fuse
+crw-------  1 root root      254,     0 jun  1 07:45 gpiochip0
+crw-------  1 root root      241,     0 jun  1 20:52 hidraw0
+crw-------  1 root root      241,     1 jun  1 21:08 hidraw1
+crw-------  1 root root      241,     2 jun  1 21:08 hidraw2
+crw-------  1 root root       10,   228 jun  1 07:45 hpet
+drwxr-xr-x  2 root root               0 jun  1 07:45 hugepages
+crw-------  1 root root       10,   183 jun  1 07:45 hwrng
+crw-------  1 root root       89,     0 jun  1 07:45 i2c-0
+crw-------  1 root root       89,     1 jun  1 07:45 i2c-1
+crw-------  1 root root       89,     2 jun  1 07:45 i2c-2
+crw-------  1 root root       89,     3 jun  1 07:45 i2c-3
+crw-------  1 root root       89,     4 jun  1 07:45 i2c-4
+crw-------  1 root root       89,     5 jun  1 07:45 i2c-5
+crw-------  1 root root       89,     6 jun  1 07:45 i2c-6
+lrwxrwxrwx  1 root root              12 jun  1 07:45 initctl -> /run/initctl
+drwxr-xr-x  4 root root             400 jun  1 21:08 input
+crw-r--r--  1 root root        1,    11 jun  1 07:45 kmsg
+crw-rw----+ 1 root kvm        10,   232 jun  1 07:45 kvm
+lrwxrwxrwx  1 root root              28 jun  1 07:45 log -> /run/systemd/journal/dev-log
+brw-rw----  1 root disk        7,     0 jun  1 07:45 loop0
+brw-rw----  1 root disk        7,     1 jun  1 07:45 loop1
+brw-rw----  1 root disk        7,    10 jun  1 07:45 loop10
+brw-rw----  1 root disk        7,    11 jun  1 07:45 loop11
+brw-rw----  1 root disk        7,    12 jun  1 07:45 loop12
+brw-rw----  1 root disk        7,    13 jun  1 07:45 loop13
+brw-rw----  1 root disk        7,    14 jun  1 07:45 loop14
+brw-rw----  1 root disk        7,    15 jun  1 07:45 loop15
+brw-rw----  1 root disk        7,    16 jun  1 07:45 loop16
+brw-rw----  1 root disk        7,    17 jun  1 07:45 loop17
+brw-rw----  1 root disk        7,    18 jun  1 07:45 loop18
+brw-rw----  1 root disk        7,    19 jun  1 07:45 loop19
+brw-rw----  1 root disk        7,     2 jun  1 07:45 loop2
+brw-rw----  1 root disk        7,    20 jun  1 07:45 loop20
+brw-rw----  1 root disk        7,    21 jun  1 07:45 loop21
+brw-rw----  1 root disk        7,    22 jun  1 07:45 loop22
+brw-rw----  1 root disk        7,    23 jun  1 07:45 loop23
+brw-rw----  1 root disk        7,    24 jun  1 07:45 loop24
+brw-rw----  1 root disk        7,    25 jun  1 07:45 loop25
+brw-rw----  1 root disk        7,    26 jun  1 07:45 loop26
+brw-rw----  1 root disk        7,    27 jun  1 07:51 loop27
+brw-rw----  1 root disk        7,    28 jun  1 07:45 loop28
+brw-rw----  1 root disk        7,    29 jun  1 07:45 loop29
+brw-rw----  1 root disk        7,     3 jun  1 07:45 loop3
+brw-rw----  1 root disk        7,    30 jun  1 07:45 loop30
+brw-rw----  1 root disk        7,     4 jun  1 07:45 loop4
+brw-rw----  1 root disk        7,     5 jun  1 07:45 loop5
+brw-rw----  1 root disk        7,     6 jun  1 07:45 loop6
+brw-rw----  1 root disk        7,     7 jun  1 07:45 loop7
+brw-rw----  1 root disk        7,     8 jun  1 07:45 loop8
+brw-rw----  1 root disk        7,     9 jun  1 07:45 loop9
+crw-rw----  1 root disk       10,   237 jun  1 07:45 loop-control
+drwxr-xr-x  2 root root              60 jun  1 07:45 mapper
+crw-------  1 root root       10,   227 jun  1 07:45 mcelog
+crw-rw----+ 1 root video     238,     0 jun  1 07:45 media0
+crw-------  1 root root      240,     0 jun  1 07:45 mei0
+crw-r-----  1 root kmem        1,     1 jun  1 07:45 mem
+drwxrwxrwt  2 root root              40 jun  1 07:45 mqueue
+drwxr-xr-x  2 root root              60 jun  1 07:45 net
+crw-rw-rw-  1 root root        1,     3 jun  1 07:45 null
+crw-------  1 root root       10,   144 jun  1 07:45 nvram
+crw-r-----  1 root kmem        1,     4 jun  1 07:45 port
+crw-------  1 root root      108,     0 jun  1 07:45 ppp
+crw-------  1 root root       10,     1 jun  1 07:45 psaux
+crw-rw-rw-  1 root tty         5,     2 jun  1 22:16 ptmx
+crw-------  1 root root      246,     0 jun  1 07:45 ptp0
+drwxr-xr-x  2 root root               0 jun  1 07:45 pts
+crw-rw-rw-  1 root root        1,     8 jun  1 07:45 random
+crw-rw-r--+ 1 root root       10,   242 jun  1 07:45 rfkill
+lrwxrwxrwx  1 root root               4 jun  1 07:45 rtc -> rtc0
+crw-------  1 root root      248,     0 jun  1 07:45 rtc0
+brw-rw----  1 root disk        8,     0 jun  1 07:45 sda
+brw-rw----  1 root disk        8,     1 jun  1 07:45 sda1
+brw-rw----  1 root disk        8,     2 jun  1 07:45 sda2
+crw-rw----  1 root disk       21,     0 jun  1 07:45 sg0
+crw-------  1 root root       10,   126 jun  1 07:45 sgx_provision
+crw-rw----  1 root sgx        10,   125 jun  1 07:45 sgx_vepc
+drwxrwxrwt  2 root root              40 jun  1 22:16 shm
+crw-------  1 root root       10,   231 jun  1 07:45 snapshot
+drwxr-xr-x  4 root root             340 jun  1 21:08 snd
+lrwxrwxrwx  1 root root              15 jun  1 07:45 stderr -> /proc/self/fd/2
+lrwxrwxrwx  1 root root              15 jun  1 07:45 stdin -> /proc/self/fd/0
+lrwxrwxrwx  1 root root              15 jun  1 07:45 stdout -> /proc/self/fd/1
+crw-rw----  1 tss  root       10,   224 jun  1 07:45 tpm0
+crw-rw----  1 tss  tss       253, 65536 jun  1 07:45 tpmrm0
+crw-rw-rw-  1 root tty         5,     0 jun  1 22:13 tty
+crw--w----  1 root tty         4,     0 jun  1 07:45 tty0
+crw--w----  1 root tty         4,     1 jun  1 07:45 tty1
+crw--w----  1 root tty         4,    10 jun  1 07:45 tty10
+crw--w----  1 root tty         4,    11 jun  1 07:45 tty11
+crw--w----  1 root tty         4,    12 jun  1 07:45 tty12
+crw--w----  1 root tty         4,    13 jun  1 07:45 tty13
+crw--w----  1 root tty         4,    14 jun  1 07:45 tty14
+crw--w----  1 root tty         4,    15 jun  1 07:45 tty15
+crw--w----  1 root tty         4,    16 jun  1 07:45 tty16
+crw--w----  1 root tty         4,    17 jun  1 07:45 tty17
+crw--w----  1 root tty         4,    18 jun  1 07:45 tty18
+crw--w----  1 root tty         4,    19 jun  1 07:45 tty19
+crw--w----  1 nico tty         4,     2 jun  1 07:45 tty2
+crw--w----  1 root tty         4,    20 jun  1 07:45 tty20
+crw--w----  1 root tty         4,    21 jun  1 07:45 tty21
+crw--w----  1 root tty         4,    22 jun  1 07:45 tty22
+crw--w----  1 root tty         4,    23 jun  1 07:45 tty23
+crw--w----  1 root tty         4,    24 jun  1 07:45 tty24
+crw--w----  1 root tty         4,    25 jun  1 07:45 tty25
+crw--w----  1 root tty         4,    26 jun  1 07:45 tty26
+crw--w----  1 root tty         4,    27 jun  1 07:45 tty27
+crw--w----  1 root tty         4,    28 jun  1 07:45 tty28
+crw--w----  1 root tty         4,    29 jun  1 07:45 tty29
+crw--w----  1 root tty         4,     3 jun  1 07:45 tty3
+crw--w----  1 root tty         4,    30 jun  1 07:45 tty30
+crw--w----  1 root tty         4,    31 jun  1 07:45 tty31
+crw--w----  1 root tty         4,    32 jun  1 07:45 tty32
+crw--w----  1 root tty         4,    33 jun  1 07:45 tty33
+crw--w----  1 root tty         4,    34 jun  1 07:45 tty34
+crw--w----  1 root tty         4,    35 jun  1 07:45 tty35
+crw--w----  1 root tty         4,    36 jun  1 07:45 tty36
+crw--w----  1 root tty         4,    37 jun  1 07:45 tty37
+crw--w----  1 root tty         4,    38 jun  1 07:45 tty38
+crw--w----  1 root tty         4,    39 jun  1 07:45 tty39
+crw--w----  1 root tty         4,     4 jun  1 07:45 tty4
+crw--w----  1 root tty         4,    40 jun  1 07:45 tty40
+crw--w----  1 root tty         4,    41 jun  1 07:45 tty41
+crw--w----  1 root tty         4,    42 jun  1 07:45 tty42
+crw--w----  1 root tty         4,    43 jun  1 07:45 tty43
+crw--w----  1 root tty         4,    44 jun  1 07:45 tty44
+crw--w----  1 root tty         4,    45 jun  1 07:45 tty45
+crw--w----  1 root tty         4,    46 jun  1 07:45 tty46
+crw--w----  1 root tty         4,    47 jun  1 07:45 tty47
+crw--w----  1 root tty         4,    48 jun  1 07:45 tty48
+crw--w----  1 root tty         4,    49 jun  1 07:45 tty49
+crw--w----  1 root tty         4,     5 jun  1 07:45 tty5
+crw--w----  1 root tty         4,    50 jun  1 07:45 tty50
+crw--w----  1 root tty         4,    51 jun  1 07:45 tty51
+crw--w----  1 root tty         4,    52 jun  1 07:45 tty52
+crw--w----  1 root tty         4,    53 jun  1 07:45 tty53
+crw--w----  1 root tty         4,    54 jun  1 07:45 tty54
+crw--w----  1 root tty         4,    55 jun  1 07:45 tty55
+crw--w----  1 root tty         4,    56 jun  1 07:45 tty56
+crw--w----  1 root tty         4,    57 jun  1 07:45 tty57
+crw--w----  1 root tty         4,    58 jun  1 07:45 tty58
+crw--w----  1 root tty         4,    59 jun  1 07:45 tty59
+crw--w----  1 root tty         4,     6 jun  1 07:45 tty6
+crw--w----  1 root tty         4,    60 jun  1 07:45 tty60
+crw--w----  1 root tty         4,    61 jun  1 07:45 tty61
+crw--w----  1 root tty         4,    62 jun  1 07:45 tty62
+crw--w----  1 root tty         4,    63 jun  1 07:45 tty63
+crw--w----  1 root tty         4,     7 jun  1 07:45 tty7
+crw--w----  1 root tty         4,     8 jun  1 07:45 tty8
+crw--w----  1 root tty         4,     9 jun  1 07:45 tty9
+crw-------  1 root root        5,     3 jun  1 07:45 ttyprintk
+crw-rw----  1 root dialout     4,    64 jun  1 07:45 ttyS0
+crw-rw----  1 root dialout     4,    65 jun  1 07:45 ttyS1
+crw-rw----  1 root dialout     4,    74 jun  1 07:45 ttyS10
+crw-rw----  1 root dialout     4,    75 jun  1 07:45 ttyS11
+crw-rw----  1 root dialout     4,    76 jun  1 07:45 ttyS12
+crw-rw----  1 root dialout     4,    77 jun  1 07:45 ttyS13
+crw-rw----  1 root dialout     4,    78 jun  1 07:45 ttyS14
+crw-rw----  1 root dialout     4,    79 jun  1 07:45 ttyS15
+crw-rw----  1 root dialout     4,    80 jun  1 07:45 ttyS16
+crw-rw----  1 root dialout     4,    81 jun  1 07:45 ttyS17
+crw-rw----  1 root dialout     4,    82 jun  1 07:45 ttyS18
+crw-rw----  1 root dialout     4,    83 jun  1 07:45 ttyS19
+crw-rw----  1 root dialout     4,    66 jun  1 07:45 ttyS2
+crw-rw----  1 root dialout     4,    84 jun  1 07:45 ttyS20
+crw-rw----  1 root dialout     4,    85 jun  1 07:45 ttyS21
+crw-rw----  1 root dialout     4,    86 jun  1 07:45 ttyS22
+crw-rw----  1 root dialout     4,    87 jun  1 07:45 ttyS23
+crw-rw----  1 root dialout     4,    88 jun  1 07:45 ttyS24
+crw-rw----  1 root dialout     4,    89 jun  1 07:45 ttyS25
+crw-rw----  1 root dialout     4,    90 jun  1 07:45 ttyS26
+crw-rw----  1 root dialout     4,    91 jun  1 07:45 ttyS27
+crw-rw----  1 root dialout     4,    92 jun  1 07:45 ttyS28
+crw-rw----  1 root dialout     4,    93 jun  1 07:45 ttyS29
+crw-rw----  1 root dialout     4,    67 jun  1 07:45 ttyS3
+crw-rw----  1 root dialout     4,    94 jun  1 07:45 ttyS30
+crw-rw----  1 root dialout     4,    95 jun  1 07:45 ttyS31
+crw-rw----  1 root dialout     4,    68 jun  1 07:45 ttyS4
+crw-rw----  1 root dialout     4,    69 jun  1 07:45 ttyS5
+crw-rw----  1 root dialout     4,    70 jun  1 07:45 ttyS6
+crw-rw----  1 root dialout     4,    71 jun  1 07:45 ttyS7
+crw-rw----  1 root dialout     4,    72 jun  1 07:45 ttyS8
+crw-rw----  1 root dialout     4,    73 jun  1 07:45 ttyS9
+crw-rw----  1 root kvm        10,   122 jun  1 07:45 udmabuf
+crw-------  1 root root       10,   239 jun  1 07:45 uhid
+crw-------  1 root root       10,   223 jun  1 07:45 uinput
+crw-rw-rw-  1 root root        1,     9 jun  1 07:45 urandom
+drwxr-xr-x  2 root root              60 jun  1 21:08 usb
+crw-------  1 root root       10,   124 jun  1 07:45 userfaultfd
+crw-------  1 root root       10,   240 jun  1 07:45 userio
+drwxr-xr-x  4 root root              80 jun  1 07:45 v4l
+crw-------  1 root root       10,   120 jun  1 07:45 vboxdrv
+crw-rw-rw-  1 root root       10,   119 jun  1 07:45 vboxdrvu
+crw-------  1 root root       10,   118 jun  1 07:45 vboxnetctl
+drwxr-x---  3 root vboxusers         60 jun  1 07:45 vboxusb
+crw-rw----  1 root tty         7,     0 jun  1 07:45 vcs
+crw-rw----  1 root tty         7,     1 jun  1 07:45 vcs1
+crw-rw----  1 root tty         7,     2 jun  1 07:45 vcs2
+crw-rw----  1 root tty         7,     3 jun  1 07:45 vcs3
+crw-rw----  1 root tty         7,     4 jun  1 07:45 vcs4
+crw-rw----  1 root tty         7,     5 jun  1 07:45 vcs5
+crw-rw----  1 root tty         7,     6 jun  1 07:45 vcs6
+crw-rw----  1 root tty         7,   128 jun  1 07:45 vcsa
+crw-rw----  1 root tty         7,   129 jun  1 07:45 vcsa1
+crw-rw----  1 root tty         7,   130 jun  1 07:45 vcsa2
+crw-rw----  1 root tty         7,   131 jun  1 07:45 vcsa3
+crw-rw----  1 root tty         7,   132 jun  1 07:45 vcsa4
+crw-rw----  1 root tty         7,   133 jun  1 07:45 vcsa5
+crw-rw----  1 root tty         7,   134 jun  1 07:45 vcsa6
+crw-rw----  1 root tty         7,    64 jun  1 07:45 vcsu
+crw-rw----  1 root tty         7,    65 jun  1 07:45 vcsu1
+crw-rw----  1 root tty         7,    66 jun  1 07:45 vcsu2
+crw-rw----  1 root tty         7,    67 jun  1 07:45 vcsu3
+crw-rw----  1 root tty         7,    68 jun  1 07:45 vcsu4
+crw-rw----  1 root tty         7,    69 jun  1 07:45 vcsu5
+crw-rw----  1 root tty         7,    70 jun  1 07:45 vcsu6
+drwxr-xr-x  2 root root              60 jun  1 07:45 vfio
+crw-------  1 root root       10,   127 jun  1 07:45 vga_arbiter
+crw-------  1 root root       10,   137 jun  1 07:45 vhci
+crw-rw----  1 root kvm        10,   238 jun  1 07:45 vhost-net
+crw-rw----  1 root kvm        10,   241 jun  1 07:45 vhost-vsock
+crw-rw----+ 1 root video      81,     0 jun  1 07:45 video0
+crw-rw----+ 1 root video      81,     1 jun  1 07:45 video1
+crw-rw-rw-  1 root root        1,     5 jun  1 07:45 zero
+crw-------  1 root root       10,   249 jun  1 07:45 zfs
+```
+
+Y, al llamar a `/dev df -h`:
+
+```bash
+S.ficheros     Tamaño Usados  Disp Uso% Montado en
+tmpfs            772M   2,2M  770M   1% /run
+/dev/sda2        219G   124G   84G  60% /
+tmpfs            3,8G   258M  3,6G   7% /dev/shm
+tmpfs            5,0M   4,0K  5,0M   1% /run/lock
+efivarfs         108K   102K  1,6K  99% /sys/firmware/efi/efivars
+tmpfs            3,8G      0  3,8G   0% /run/qemu
+/dev/sda1        511M   6,1M  505M   2% /boot/efi
+tmpfs            772M   152K  772M   1% /run/user/1000
+```
+
+Donde el fichero `tmpfs` es **Temporary File System**, es un Sistema de archivos temporal en RAM, usado para datos que cambian frecuentemente y no necesitan ser persistentes.
+
+- `/dev/sda2` es la partición principal del disco duro, contiene el sistema operativo y los datos de usuario.
+- `tmpfs - /dev/shm` se refiere a Memoria compartida, usada por procesos para comunicarse entre sí. Está montada en /dev/shm
+- `tmpfs - /run/lock` se refiere a Bloqueo de archivos temporales, usado para gestionar archivos de bloqueo que previenen que múltiples procesos accedan al mismo recurso simultáneamente. Está montado en /run/lock.
+- `efivarfs - /sys/firmware/efi/efivars` se trata de un Sistema de archivos especial para variables EFI (Extensible Firmware Interface), usado por el firmware UEFI. Está montado en /sys/firmware/efi/efivars.
+- `tmpfs - /run/qemu` se trata de un Sistema de archivos temporal que puede ser usado por máquinas virtuales. Está montado en /run/qemu.
+- `/dev/sda1 - /boot/efi` es la Partición EFI, contiene archivos necesarios para arrancar el sistema en modo UEFI.
+- `tmpfs - /run/user/1000` es el Directorio temporal para el usuario con ID 1000, generalmente el primer usuario creado en el sistema.
+
+
 ## Practico
 
 Para esta primera parte, al navegar a la carpeta `module`, se debe instanciar el modulo propuesto, y para ello se corre el siguiente comando:
@@ -1108,381 +1479,531 @@ clean:
 
 En donde es importante la sentencia `uname -r`, la cual brinda informacion del kernel que esta siendo utilizado por el sistema operativo. En el caso de la maquina utilizada para la compilacion, se tiene `6.1.0-21-arm64`, luego, en WSL, utilizado para algunos codigos anteriormente, se tiene `5.15.146.1-microsoft-standard-WSL2`.
 
-## Desafio 1
+#### Drivers y modulos en las PCs del grupo
 
-### Checkinstall
+Se corre la linea `lsmod | grep .` en cada una de las computadoras de los integrantes del grupo, de esa forma se obtiene la siguiente comparacion:
 
-Es un programa para sistemas operativos Unix-Like que permite instalacion y desinstalacion de software compilado desde el codigo fuente para ser administrado por un sistema de gestion de paquetes. Permite que luego de la compilacion se obtengan paquetes compatibles con:
+| Módulo                       | Tamaño   | Usado por Nico                             | Usado por Facu               | Usado por Fede                           |
+|------------------------------|----------|--------------------------------------------|------------------------------|------------------------------------------|
+| hid_xiaomi                   | 12288    | 0                                          | -                            | -                                        |
+| uhid                         | 20480    | 1                                          | -                            | -                                        |
+| rfcomm                       | 98304    | 16                                         | -                            | -                                        |
+| xt_conntrack                 | 12288    | 1                                          | -                            | -                                        |
+| nft_chain_nat                | 12288    | 3                                          | -                            | -                                        |
+| xt_MASQUERADE                | 16384    | 1                                          | -                            | -                                        |
+| nf_nat                       | 61440    | 2 nft_chain_nat,xt_MASQUERADE               | -                            | -                                        |
+| nf_conntrack                | 208896   | 3 xt_conntrack,nf_nat,xt_MASQUERADE        | -                            | -                                        |
+| nf_defrag_ipv6              | 24576    | 1 nf_conntrack                             | -                            | -                                        |
+| nf_defrag_ipv4              | 12288    | 1 nf_conntrack                             | -                            | -                                        |
+| xfrm_user                   | 61440    | 1                                          | -                            | -                                        |
+| xfrm_algo                   | 20480    | 1 xfrm_user                                | -                            | -                                        |
+| xt_addrtype                 | 12288    | 2                                          | -                            | -                                        |
+| nft_compat                  | 20480    | 4                                          | -                            | -                                        |
+| nf_tables                   | 372736   | 57 nft_compat,nft_chain_nat                | -                            | -                                        |
+| libcrc32c                   | 12288    | 3 nf_conntrack,nf_nat,nf_tables            | -                            | -                                        |
+| nfnetlink                   | 20480    | 3 nft_compat,nf_tables                     | -                            | -                                        |
+| vboxnetadp                  | 28672    | 0                                          | -                            | -                                        |
+| vboxnetflt                  | 36864    | 0                                          | -                            | -                                        |
+| vboxdrv                     | 692224   | 2 vboxnetadp,vboxnetflt                    | -                            | -                                        |
+| ccm                         | 20480    | 3                                          | -                            | -                                        |
+| snd_hda_codec_hdmi          | 94208    | 1                                          | -                            | -                                        |
+| snd_hda_codec_realtek       | 192512   | 1                                          | -                            | -                                        |
+| snd_hda_codec_generic       | 122880   | 1 snd_hda_codec_realtek                    | -                            | -                                        |
+| ledtrig_audio               | 12288    | 1 snd_hda_codec_generic                    | -                            | -                                        |
+| cmac                        | 12288    | 3                                          | -                            | -                                        |
+| algif_hash                  | 12288    | 1                                          | -                            | -                                        |
+| algif_skcipher              | 12288    | 1                                          | -                            | -                                        |
+| af_alg                      | 32768    | 6 algif_hash,algif_skcipher                | -                            | -                                        |
+| bnep                        | 32768    | 2                                          | -                            | -                                        |
+| snd_sof_pci_intel_skl       | 12288    | 0                                          | -                            | -                                        |
+| snd_sof_intel_hda_common    | 200704   | 1 snd_sof_pci_intel_skl                    | -                            | -                                        |
+| soundwire_intel             | 65536    | 1 snd_sof_intel_hda_common                 | -                            | -                                        |
+| snd_sof_intel_hda_mlink     | 45056    | 2 soundwire_intel,snd_sof_intel_hda_common | -                            | -                                        |
+| soundwire_cadence           | 40960    | 1 soundwire_intel                          | -                            | -                                        |
+| snd_sof_intel_hda           | 24576    | 1 snd_sof_intel_hda_common                 | -                            | -                                        |
+| snd_sof_pci                 | 24576    | 2 snd_sof_intel_hda_common,snd_sof_pci_intel_skl | -                            | -                                        |
+| snd_sof_xtensa_dsp          | 12288    | 1 snd_sof_intel_hda_common                 | -                            | -                                        |
+| snd_sof                    | 360448   | 3 snd_sof_pci,snd_sof_intel_hda_common,snd_sof_intel_hda | -                     | -                                        |
+| snd_sof_utils               | 16384    | 1 snd_sof                                  | -                            | -                                        |
+| soundwire_generic_allocation| 12288    | 1 soundwire_intel                          | -                            | -                                        |
+| soundwire_bus               | 110592   | 3 soundwire_intel,soundwire_generic_allocation,soundwire_cadence | -        | -                                        |
+| snd_soc_avs                 | 184320   | 0                                          | -                            | -                                        |
+| snd_soc_hda_codec           | 24576    | 1 snd_soc_avs                              | -                            | -                                        |
+| snd_soc_skl                 | 212992   | 0                                          | -                            | -                                        |
+| snd_soc_hdac_hda            | 24576    | 2 snd_sof_intel_hda_common,snd_soc_skl     | -                            | -                                        |
+| snd_hda_ext_core            | 36864    | 7 snd_soc_avs,snd_soc_hda_codec,snd_sof_intel_hda_common,snd_soc_hdac_hda,snd_sof_intel_hda_mlink,snd_soc_skl,snd_sof_intel_hda | -  | -                                        |
+| intel_rapl_msr              | 20480    | 0                                          | 0                            | -                                        |
+| snd_soc_sst_ipc             | 20480    | 1 snd_soc_skl                              | -                            | -                                        |
+| intel_rapl_common           | 40960    | 1 intel_rapl_msr                           | 1 intel_rapl_msr             | -                                        |
+| snd_soc_sst_dsp             | 40960    | 1 snd_soc_skl                              | -                            | -                                        |
+| intel_tcc_cooling           | 12288    | 0                                          | -                            | -                                        |
+| x86_pkg_temp_thermal        | 20480    | 0                                          | -                            | -                                        |
+| snd_soc_acpi_intel_match    | 94208    | 3 snd_sof_intel_hda_common,snd_soc_skl,snd_sof_pci_intel_skl | -                     | -                                        |
+| intel_powerclamp            | 24576    | 0                                          | -                            | -                                        |
+| snd_soc_acpi                | 12288    | 3 snd_soc_acpi_intel_match,snd_sof_intel_hda_common,snd_soc_skl | -               | -                                        |
+| coretemp                    | 24576    | 0                                          | -                            | -                                        |
+| snd_soc_core                | 446464   | 7 snd_soc_avs,snd_soc_hda_codec,soundwire_intel,snd_sof,snd_sof_intel_hda_common,snd_soc_hdac_hda,snd_soc_skl | - | -                                        |
+| kvm_intel                   | 487424   | 0                                          | -                            | -                                        |
+| binfmt_misc                 | 24576    | 1                                          | 1                            | 1                                        |
+| snd_compress                | 28672    | 2 snd_soc_avs,snd_soc_core                 | -                            | -                                        |
+| ac97_bus                    | 12288    | 1 snd_soc_core                             | 1 snd_ac97_codec             | -                                        |
+| nls_iso8859_1               | 12288    | 1                                          | 1                            | -                                        |
+| snd_pcm_dmaengine           | 16384    | 1 snd_soc_core                             | -                            | -                                        |
+| snd_hda_intel               | 61440    | 5                                          | -                            | -                                        |
+| snd_intel_dspcfg            | 32768    | 5 snd_soc_avs,snd_hda_intel,snd_sof,snd_sof_intel_hda_common,snd_soc_skl | -             | -                                        |
+| snd_usb_audio               | 450560   | 0                                          | -                            | -                                        |
+| kvm                         | 1409024  | 1 kvm_intel                                | -                            | -                                        |
+| snd_intel_sdw_acpi          | 16384    | 2 snd_sof_intel_hda_common,snd_intel_dspcfg | -                            | -                                        |
+| btusb                       | 81920    | 0                                          | -                            | -                                        |
+| snd_hda_codec               | 176128   | 4 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_realtek,snd_hda_codec_generic | - | -                                        |
+| btrtl                       | 28672    | 1 btusb                                    | -                            | -                                        |
+| snd_usbmidi_lib             | 53248    | 1 snd_usb_audio                            | -                            | -                                        |
+| snd_hda_core                | 110592   | 9 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_hda_codec_realtek,snd_hda_codec_generic,snd_soc_avs,snd_soc_hda_codec,snd_soc_hdac_hda,snd_sof_intel_hda | - | -                                        |
+| snd_rawmidi                 | 45056    | 1 snd_usbmidi_lib                          | -                            | -                                        |
+| uvcvideo                    | 114688   | 0                                          | -                            | -                                        |
+| videobuf2_vmalloc           | 20480    | 1 uvcvideo                                 | -                            | -                                        |
+| btbcm                       | 20480    | 1 btusb                                    | -                            | -                                        |
+| snd_hwdep                   | 20480    | 2 snd_usb_audio,snd_hda_codec              | -                            | -                                        |
+| btintel                     | 49152    | 1 btusb                                    | -                            | -                                        |
+| irqbypass                   | 16384    | 1 kvm                                      | -                            | -                                        |
+| videobuf2_memops            | 20480    | 1 videobuf2_vmalloc                        | -                            | -                                        |
+| btmtk                       | 16384    | 1 btusb                                    | -                            | -                                        |
+| rapl                        | 20480    | 0                                          | -                            | -                                        |
+| snd_pcm                     | 151552   | 11 snd_hda_codec_hdmi,snd_hda_intel,snd_usb_audio,snd_hda_codec,snd_compress,snd_soc_avs,snd_soc_core,snd_hda_core,snd_pcm_dmaengine,snd_soc_skl,snd_sof | - | -                                        |
+| bluetooth                   | 933888   | 43 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm | -                      | -                                        |
+| videobuf2_v4l2              | 40960    | 1 uvcvideo                                 | -                            | -                                        |
+| snd_timer                   | 45056    | 1 snd_seq                                  | 2 snd_seq,snd_hrtimer        | 2 snd_seq,snd_hrtimer                    |
+| snd_seq_device              | 16384    | 1 snd_seq                                  | 1 snd_seq                    | 1 snd_seq                                |
+| videobuf2_common            | 81920    | 2 videobuf2_v4l2,uvcvideo                  | -                            | -                                        |
+| snd                        | 118784   | 18 snd_hda_codec_hdmi,snd_hda_intel,snd_usb_audio,snd_hda_codec,snd_usbmidi_lib,snd_soc_avs,snd_soc_core,snd_hwdep,snd_seq,snd_seq_device,snd_compress,snd_pcm,snd_rawmidi,snd_soc_skl,snd_timer,snd_hrtimer,snd_hda_codec_realtek,snd_hda_codec_generic | 5 snd_seq,snd_seq_device,snd_timer | 5 snd_seq,snd_seq_device,snd_timer       |
+| videodev                    | 278528   | 3 videobuf2_v4l2,uvcvideo,videobuf2_common | -                            | -                                        |
+| processor_thermal_device_pci| 16384    | 0                                          | -                            | -                                        |
+| cfg80211                    | 1105920  | 0                                          | -                            | -                                        |
+| mei_me                      | 53248    | 1                                          | 1                            | -                                        |
+| processor_thermal_device    | 24576    | 1 processor_thermal_device_pci             | -                            | -                                        |
+| processor_thermal_rfim      | 16384    | 1 processor_thermal_device                 | -                            | -                                        |
+| processor_thermal_mbox      | 16384    | 1 processor_thermal_device                 | -                            | -                                        |
+| processor_thermal_rapl      | 20480    | 1 processor_thermal_device                 | -                            | -                                        |
+| intel_rapl_common           | 40960    | 1 intel_rapl_msr                           | 1 intel_rapl_msr             | -                                        |
+| mei                         | 151552   | 3 mei_me                                   | 1                            | -                                        |
+| idma64                      | 20480    | 0                                          | -                            | -                                        |
+| efi_pstore                  | 16384    | 0                                          | -                            | 0                                        |
+| ideapad_laptop              | 28672    | 0                                          | -                            | -                                        |
+| platform_profile            | 16384    | 1 ideapad_laptop                           | -                            | -                                        |
+| int3403_thermal             | 20480    | 0                                          | -                            | -                                        |
+| soundcore                   | 16384    | 2 snd                                      | 1 snd                        | 1 snd                                    |
+| intel_soc_dts_iosf          | 20480    | 1 processor_thermal_device_pci             | -                            | -                                        |
+| int3400_thermal             | 20480    | 0                                          | -                            | -                                        |
+| acpi_pad                    | 20480    | 0                                          | -                            | -                                        |
+| intel_pch_thermal           | 16384    | 0                                          | -                            | -                                        |
+| mac_hid                     | 16384    | 0                                          | -                            | -                                        |
+| int340x_thermal_zone        | 16384    | 2 int3403_thermal,processor_thermal_device | -                            | -                                        |
+| auth_rpcgss                 | 77824    | 1                                          | -                            | -                                        |
+| sunrpc                      | 561152   | 13 auth_rpcgss                             | -                            | -                                        |
+| zram                        | 32768    | 2                                          | -                            | -                                        |
+| hid_multitouch              | 32768    | 0                                          | -                            | -                                        |
+| uas                         | 28672    | 0                                          | -                            | -                                        |
+| usb_storage                 | 81920    | 2 uas                                      | -                            | -                                        |
+| hid_generic                 | 16384    | 0                                          | 0                            | 0                                        |
+| usbhid                      | 61440    | 2 hid_xiaomi,hid_generic                   | 0                            | 0                                        |
+| i915                       | 2990080  | 23                                         | -                            | -                                        |
+| rtsx_pci_sdmmc              | 32768    | 0                                          | -                            | -                                        |
+| drm_buddy                   | 20480    | 1 i915                                     | -                            | -                                        |
+| drm_display_helper          | 184320   | 1 i915                                     | -                            | -                                        |
+| cec                         | 53248    | 2 drm_display_helper,i915                  | -                            | -                                        |
+| nvme                        | 61440    | 3                                          | -                            | -                                        |
+| nvme_core                   | 204800   | 6 nvme                                     | -                            | -                                        |
+| hid_xiaomi                  | 12288    | 0                                          | 0                            | -                                        |
+| hid_generic                 | 16384    | 0                                          | 0                            | 0                                        |
+| usbhid                      | 57344    | 0                                          | 0                            | 0                                        |
+| apple_mfi_fastcharge        | 20480    | -                                          | -                            | 0                                        |
+| joydev                      | 32768    | -                                          | -                            | 0                                        |
+| aes_ce_blk                  | 32768    | -                                          | -                            | 0                                        |
+| aes_ce_cipher               | 16384    | -                                          | -                            | 1 aes_ce_blk                            |
+| polyval_ce                  | 16384    | -                                          | -                            | 0                                        |
+| polyval_generic             | 16384    | -                                          | -                            | 1 polyval_ce                            |
+| ghash_ce                    | 20480    | -                                          | -                            | 0                                        |
+| gf128mul                    | 16384    | -                                          | -                            | 2 polyval_generic,ghash_ce              |
+| sha3_ce                     | 16384    | -                                          | -                            | 0                                        |
+| sha3_generic                | 16384    | -                                          | -                            | 1 sha3_ce                               |
+| sha512_ce                   | 16384    | -                                          | -                            | 0                                        |
+| sha512_arm64                | 20480    | -                                          | -                            | 1 sha512_ce                             |
+| sha2_ce                     | 16384    | -                                          | -                            | 0                                        |
+| sha256_arm64                | 24576    | -                                          | -                            | 1 sha2_ce,sha512_arm64,sha3_generic       |
+| sha1_ce                     | 16384    | -                                          | -                            | 0                                        |
+| virtio_balloon              | 28672    | -                                          | -                            | 0                                        |
+| virtio_console              | 45056    | -                                          | -                            | 1 virtio_balloon                       |
+| virtiofs                    | 32768    | -                                          | -                            | 1 virtio_console                       |
+| evdev                       | 28672    | -                                          | -                            | 6                                        |
+| loop                        | 36864    | -                                          | -                            | 0                                        |
+| fuse                        | 135168   | -                                          | -                            | 6 virtiofs,loop                        |
+| dm_mod                      | 143360   | -                                          | -                            | 0                                        |
+| dax                         | 32768    | -                                          | -                            | 1 dm_mod                                |
+| configfs                    | 49152    | -                                          | -                            | 1                                        |
+| efivarfs                    | 20480    | -                                          | -                            | 1                                        |
+| virtio_rng                  | 16384    | -                                          | -                            | 0                                        |
+| ip_tables                   | 32768    | -                                          | -                            | 0                                        |
+| x_tables                    | 36864    | -                                          | -                            | 1 ip_tables                             |
+| autofs4                     | 45056    | -                                          | -                            | 2                                        |
+| ext4                        | 765952   | -                                          | -                            | 1 autofs4                               |
+| crc16                       | 16384    | -                                          | -                            | 1 ext4                                  |
+| mbcache                     | 20480    | -                                          | -                            | 1 ext4                                  |
+| jbd2                        | 139264   | -                                          | -                            | 1 ext4                                  |
+| crc32c_generic              | 16384    | -                                          | -                            | 2 ext4,mbcache                          |
+| virtio_gpu                  | 69632    | -                                          | -                            | 1 virtiofs                              |
+| virtio_dma_buf              | 16384    | -                                          | -                            | 1 virtio_gpu                            |
+| drm_shmem_helper            | 20480    | -                                          | -                            | 1 virtio_gpu                            |
+| drm_kms_helper              | 139264   | -                                          | -                            | 3 drm_shmem_helper,virtio_gpu            |
+| drm                         | 442368   | -                                          | -                            | 5 drm_kms_helper,drm_shmem_helper,virtio_gpu |
+| virtio_net                  | 57344    | -                                          | -                            | 0                                        |
+| net_failover                | 20480    | -                                          | -                            | 1 virtio_net                            |
+| virtio_blk                  | 28672    | -                                          | -                            | 4                                        |
+| failover                    | 16384    | -                                          | -                            | 1 net_failover                          |
+| xhci_pci                    | 24576    | -                                          | -                            | 0                                        |
+| xhci_hcd                    | 258048   | -                                          | -                            | 1 xhci_pci                              |
+| usbcore                     | 270336   | -                                          | -                            | 4 xhci_hcd,xhci_pci,usbhid,xhci_pci     |
+| crct10dif_ce                | 16384    | -                                          | -                            | 0                                        |
+| crct10dif_common            | 16384    | -                                          | -                            | 1 crct10dif_ce                         |
+| usb_common                  | 16384    | -                                          | -                            | 2 xhci_hcd,usbcore                     |
+| virtio_pci                  | 28672    | -                                          | -                            | 0                                        |
+| virtio_pci_legacy_dev       | 16384    | -                                          | -                            | 1 virtio_pci                           |
+| virtio_pci_modern_dev       | 16384    | -                                          | -                            | 1 virtio_pci                           |
 
-- Slackware
-- RPM
-- Debian
+##### Resumen
 
-La principal ventaja por sobre `make install` es la posibilidad de desinstalar el paquete usando su sistema de gestion de paquetes.
+- Nico tiene una gran cantidad de módulos cargados en comparación con los otros dos. Presenta una variedad de módulos relacionados con el audio, redes y virtualización. Se destaca por tener muchos módulos asociados a tecnologías de audio como `snd`, `soundcore`, `snd_hda_codec`, `snd_soc_core`, entre otros. Además, incluye varios módulos de virtualización como `kvm`, `vboxdrv`, `vboxnetflt`, y módulos relacionados con redes como `mac80211`, `btusb`, `iwlwifi`, entre otros.
 
-#### Uso
+- Facu y Fede tienen una cantidad más limitada de módulos cargados en comparación con Nico. Ambos parecen estar corriendo sistemas más básicos o especializados. Facu parece tener un sistema más minimalista, con una cantidad relativamente pequeña de módulos cargados, incluyendo algunos módulos de entrada como `evdev`, módulos de red como `virtio_net`, y módulos de almacenamiento como `virtio_blk`.
 
-Para ser usado, normalmente luego del script de configuracion se ejecuta la siguiente secuencia de comandos:
+- Fede tiene una configuración similar a Facu en términos de cantidad de módulos cargados, pero con algunos módulos adicionales como `drm` y `virtio_gpu`, ya que esta usando herramientas de virtualizacion.
+
+### Comparacion de modinfo
+
+| Campo          | des_generic.ko                              | mimodulo.ko                                  |
+|----------------|---------------------------------------------|----------------------------------------------|
+| filename       | /lib/modules/6.5.0-35-generic/kernel/crypto/des_generic.ko | /mnt/e/Documentos/GitHub/practicos_SdC_2024/practico4/kernel-modules/part1/module/mimodulo.ko |
+| alias          | crypto-des3_ede-generic                    | N/A                                          |
+|                | des3_ede-generic                            |                                              |
+|                | crypto-des3_ede                            |                                              |
+|                | des3_ede                                    |                                              |
+|                | crypto-des-generic                         |                                              |
+|                | des-generic                                 |                                              |
+|                | crypto-des                                  |                                              |
+|                | des                                         |                                              |
+| author         | Dag Arne Osvik <da@osvik.no>               | Catedra de SdeC                              |
+| description    | DES & Triple DES EDE Cipher Algorithms      | Primer modulo ejemplo                        |
+| license        | GPL                                         | GPL                                          |
+| srcversion     | 96D62A505E5B9C5A4006C77                     | N/A                                          |
+| depends        | libdes                                      | N/A                                          |
+| retpoline      | Y                                           | N/A                                          |
+| intree         | Y                                           | N/A                                          |
+| name           | des_generic                                 | mimodulo                                     |
+| vermagic       | 6.5.0-35-generic SMP preempt mod_unload modversions | 6.1.0-21-arm64 SMP mod_unload modversions aarch64 |
+| sig_id         | PKCS#7                                      | N/A                                          |
+| signer         | Build time autogenerated kernel key        | N/A                                          |
+| sig_key        | 62:0D:BC:92:0F:39:43:69:D0:2E:AB:3B:16:AD:C1:49:64:BF:9B:1E | N/A                                          |
+| sig_hashalgo   | sha512                                      | N/A                                          |
+| signature      | Multiple lines of signature data            | N/A                                          |
+
+#### Resumen
+
+- **Alias**: mientras que el módulo des_generic.ko tiene varios alias relacionados con algoritmos de cifrado DES y Triple DES, el módulo mimodulo.ko no tiene alias definidos.
+- **Autor**: El autor del módulo des_generic.ko es Dag Arne Osvik, mientras que el módulo mimodulo.ko fue desarrollado por la Cátedra de Sistemas de Computación.
+- **Descripción**: El módulo des_generic.ko implementa algoritmos de cifrado DES y Triple DES, mientras que mimodulo.ko es un ejemplo de módulo sin una descripción específica de su funcionalidad.
+- **Dependencias**: El módulo des_generic.ko depende de la librería libdes, mientras que mimodulo.ko no tiene dependencias especificadas.
+Versionado: Los módulos tienen diferentes versiones del kernel (vermagic). des_generic.ko está asociado con la versión 6.5.0-35-generic, mientras que mimodulo.ko está relacionado con la versión 6.1.0-21-arm64.
+- **Firma y firma del kernel**: Solo el módulo des_generic.ko contiene información sobre la firma y firma del kernel, mientras que mimodulo.ko no tiene esta información.
+- **Licencia**: Ambos módulos tienen licencia GPL.
+
+### hwinfo en PC real
+
+Se ejecuto el comando `hwinfo` en las 3 computadoras del grupo. Los resultados de cada una de las ejecuciones por separado en los siguientes links:
+
+- [Nico](./hwinfo/hwinfo_Nico.txt)
+- [Facu](./hwinfo/hwinfo_Facu.txt)
+- [Fede](./hwinfo/hwinfo_Fede.txt)
+
+### Diferencias entre modulo y programa
+
+En el contexto de la programación, Linux y los sistemas de computación en general, la distinción entre un módulo y un programa radica en su tamaño, funcionalidad y propósito:
+
+#### Módulo:
+
+- **Unidad de código más pequeña**: un módulo es un componente reutilizable de código que encapsula una funcionalidad específica dentro de un programa más grande. Suele ser más pequeño y enfocado que un programa completo.
+- **Funciones específicas**: los módulos agrupan funciones, variables, clases u otras estructuras de programación relacionadas entre sí, proporcionando una unidad lógica y modular al código.
+- **Reutilización y organización**: se utilizan para organizar y reutilizar código de manera eficiente, mejorando la legibilidad, el mantenimiento y la extensibilidad del software.
+
+Programa:
+
+- **Unidad de código completa**: un programa es una entidad autosuficiente que contiene todas las instrucciones y datos necesarios para realizar una tarea o cumplir un objetivo específico.
+- **Función completa**: un programa define un conjunto de acciones y comportamientos que se ejecutan secuencialmente para lograr un resultado final.
+- **Ejecución independiente**: los programas se ejecutan de forma independiente, no requieren de otros programas para funcionar.
+
+### Llamadas a sistema
+
+Para observar las llamadas a sistema realizadas por un programa en C se tienen diferentes opciones:
+
+- `strace`: es una herramienta de rastreo de sistemas que registra y muestra las llamadas al sistema, las señales y las entradas/salidas de un programa. Ver [manual](https://linux.die.net/man/1/strace).
+- `gdb`: es un depurador de código fuente que permite inspeccionar y controlar la ejecución de un programa paso a paso. Ver [documentacion](https://www.gnu.org/software/gdb/gdb.html).
+- `perf`: es una herramienta de perfilado que proporciona información detallada sobre el rendimiento y la ejecución de un programa. Ver [informacion](https://perf.wiki.kernel.org/index.php/Main_Page).
+- `dtrace`: es una herramienta de rastreo y análisis de sistemas disponible en Solaris y macOS. Ver [documentacion](https://docs.oracle.com/cd/E23824_01/html/E22973/gkurw.html).
+
+#### Ejemplo con strace
+
+Para esto, se ejecuta el comando `strace ./helloWorld`, usando el mismo programa del desafio 1.
 
 ```bash
-./configure
-make
-sudo checkinstall #(as root)
+execve("./helloWorld", ["./helloWorld"], 0x7ffc4e541150 /* 36 vars */) = 0
+brk(NULL)                               = 0x563bb4306000
+arch_prctl(0x3001 /* ARCH_??? */, 0x7ffcb586b5b0) = -1 EINVAL (Invalid argument)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdf07978000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=31115, ...}, AT_EMPTY_PATH) = 0
+mmap(NULL, 31115, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fdf07970000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\237\2\0\0\0\0\0"..., 832) = 832
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+pread64(3, "\4\0\0\0 \0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0"..., 48, 848) = 48
+pread64(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0I\17\357\204\3$\f\221\2039x\324\224\323\236S"..., 68, 896) = 68
+newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2220400, ...}, AT_EMPTY_PATH) = 0
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+mmap(NULL, 2264656, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fdf07747000
+mprotect(0x7fdf0776f000, 2023424, PROT_NONE) = 0
+mmap(0x7fdf0776f000, 1658880, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x28000) = 0x7fdf0776f000
+mmap(0x7fdf07904000, 360448, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bd000) = 0x7fdf07904000
+mmap(0x7fdf0795d000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x215000) = 0x7fdf0795d000
+mmap(0x7fdf07963000, 52816, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fdf07963000
+close(3)                                = 0
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fdf07744000
+arch_prctl(ARCH_SET_FS, 0x7fdf07744740) = 0
+set_tid_address(0x7fdf07744a10)         = 69998
+set_robust_list(0x7fdf07744a20, 24)     = 0
+rseq(0x7fdf077450e0, 0x20, 0, 0x53053053) = 0
+mprotect(0x7fdf0795d000, 16384, PROT_READ) = 0
+mprotect(0x563bb40b9000, 4096, PROT_READ) = 0
+mprotect(0x7fdf079b2000, 8192, PROT_READ) = 0
+prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+munmap(0x7fdf07970000, 31115)           = 0
+newfstatat(1, "", {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0), ...}, AT_EMPTY_PATH) = 0
+getrandom("\x42\x91\x48\x77\xb2\x4c\x67\x9f", 8, GRND_NONBLOCK) = 8
+brk(NULL)                               = 0x563bb4306000
+brk(0x563bb4327000)                     = 0x563bb4327000
+write(1, "Probando checkinstall, saludos S"..., 36Probando checkinstall, saludos SdC!
+) = 36
+exit_group(0)                           = ?
++++ exited with 0 +++
+(base) fedev18@DESKTOP-F2JJ8L3:/mnt/e/Documentos/GitHub/practicos_SdC_2024/practico4$ strace ./helloWorld > strace_helloWorld.txt
+execve("./helloWorld", ["./helloWorld"], 0x7ffd0f348c60 /* 36 vars */) = 0
+brk(NULL)                               = 0x560501c21000
+arch_prctl(0x3001 /* ARCH_??? */, 0x7fffa0358ac0) = -1 EINVAL (Invalid argument)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f137b2da000    
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=31115, ...}, AT_EMPTY_PATH) = 0
+mmap(NULL, 31115, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f137b2d2000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\237\2\0\0\0\0\0"..., 832) = 832     
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+pread64(3, "\4\0\0\0 \0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0"..., 48, 848) = 48
+pread64(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0I\17\357\204\3$\f\221\2039x\324\224\323\236S"..., 68, 896) = 68
+newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2220400, ...}, AT_EMPTY_PATH) = 0
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+mmap(NULL, 2264656, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f137b0a9000
+mprotect(0x7f137b0d1000, 2023424, PROT_NONE) = 0
+mmap(0x7f137b0d1000, 1658880, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x28000) = 0x7f137b0d1000
+mmap(0x7f137b266000, 360448, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bd000) = 0x7f137b266000
+mmap(0x7f137b2bf000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x215000) = 0x7f137b2bf000
+mmap(0x7f137b2c5000, 52816, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f137b2c5000
+close(3)                                = 0
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f137b0a6000
+arch_prctl(ARCH_SET_FS, 0x7f137b0a6740) = 0
+set_tid_address(0x7f137b0a6a10)         = 70079
+set_robust_list(0x7f137b0a6a20, 24)     = 0
+rseq(0x7f137b0a70e0, 0x20, 0, 0x53053053) = 0
+mprotect(0x7f137b2bf000, 16384, PROT_READ) = 0
+mprotect(0x560500e05000, 4096, PROT_READ) = 0
+mprotect(0x7f137b314000, 8192, PROT_READ) = 0
+prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+munmap(0x7f137b2d2000, 31115)           = 0
+newfstatat(1, "", {st_mode=S_IFREG|0777, st_size=0, ...}, AT_EMPTY_PATH) = 0
+getrandom("\xff\xcc\x58\xe4\x32\xf2\xfd\xff", 8, GRND_NONBLOCK) = 8
+brk(NULL)                               = 0x560501c21000
+brk(0x560501c42000)                     = 0x560501c42000
+write(1, "Probando checkinstall, saludos S"..., 36) = 36
+exit_group(0)                           = ?
++++ exited with 0 +++
 ```
 
-#### Ejemplo con un Hello World
+Se puede encontrar la siguiente informacion:
 
-Se crea un pequeño archivo de C que permita probar una simple salida por consola:
+1. Configuracion inicial: 
+    - La linea `execve("./helloWorld", ["./helloWorld"], 0x7ffc...)` indica que el programa intenta ejecutarse a si mismo.
+    - `brk(NULL)` establece el espacio de memoria inicial para el segmento de datos del programa.
+    - `arch_prctl(ARCH_???, ...)`: este syscall intenta establecer una configuración específica de la arquitectura, pero falla con un error "Invalid argument". Es probable que no sea crítico para el funcionamiento del programa.
+2. Carga de bibliotecas: 
+    - `mmap(NULL, 8192, ...)`: asigna una region de memoria temporal.
+    - `access("/etc/ld.so.preload", R_OK)` verifica si se ha configurado una biblioteca especifica (`ld.so.preload`) para cargarse antes que otras (no se usa en este caso).
+    - `openat(...) "/etc/ld.so.cache"`: abre el archivo que contiene la informacion de cache del linker.
+    - `mmap(NULL, 31115, ...)`: mapea el contenido del archivo de cache en la memoria.
+    - `openat(...) "/lib/x86_64-linux-gnu/libc.so.6"`: abre la biblioteca de C estandar (`libc.so.6`) necesaria para la mayoria de los programas.
+    - Varias llamadas `read` y `pread64`: estas llamadas leen datos del archivo de biblioteca abierto.
+    - Mas llamadas `mmap`: estas mapean diferentes secciones de la biblioteca (código, datos, etc.) en el espacio de direcciones del programa.
+3. Gestion de memoria:
+    - Varias llamadas `mprotect`: cambian los permisos de diferentes regiones de memoria (por ejemplo, haciéndolas de solo lectura).
+    - `brk(NULL)`: ajusta nuevamente el tamaño del segmento de datos.
+    - `mmap(NULL, 12288, ...)`: asigna otra region de memoria temporal.
+4. Ejecucion del programa:
+    - Llamadas al sistema relacionadas con la gestión de subprocesos y el manejo de señales (menos relevantes para un programa simple).
+    - `write(1, "Probando checkinstall, saludos...", 36)`: esta es la linea clave que muestra la salida del programa.
+    - `exit_group(0)`: indica que el programa finaliza con exito.
+
+Se tiene informacion adicional sobre llamadas al sistema:
+
+- `execve()`: ejecuta un archivo binario como un nuevo proceso.
+- `brk()`: cambia el límite del segmento de datos del proceso.
+- `arch_prctl()`: realiza operaciones de control específicas de la arquitectura.
+- `mmap()`: mapea una región de la memoria virtual en el espacio de direcciones del proceso.
+- `access()`: verifica los permisos de acceso a un archivo.
+- `openat()`: abre un archivo con opciones adicionales.
+- `read()`: lee datos de un archivo abierto.
+- `pread64()`: lee datos de un archivo abierto en una posición específica.
+- `mprotect()`: cambia los permisos de protección de una región de memoria mapeada.
+- `write()`: escribe datos en un archivo abierto.
+- `exit_group()`: termina el proceso y devuelve un código de salida.
+
+### Segmentation fault
+
+Los **segmentation faults** en C o C++ son un error que ocurre cuando un programa intenta acceder a una ubicación de memoria a la que no tiene permiso para acceder. Generalmente, este error ocurre cuando se viola el acceso a la memoria y es un tipo de falla de protección general. Segfaults es la abreviatura de fallas de segmentación.
+
+El **core dump** se refiere al registro del estado del programa, es decir, sus recursos en la memoria y el procesador. Intentar acceder a memoria inexistente o a memoria que está siendo utilizada por otros procesos también provoca la falla de segmentación que conduce a un volcado del núcleo.
+
+Algunos escenarios comunes en donde aparecen **segmentation faults**:
+
+1. Modificando una cadena de string
+2. Acceder a una memoria que esta ocupada
+3. Acceder a un indice fuera de un array
+4. Mal uso de `scanf()`
+5. Stack Overflow
+
+#### Ejemplos
+
+1. Modificacion de string
 
 ```c
 #include <stdio.h>
-
-int main() {
-    printf("Probando checkinstall, saludos SdC!\n");
+ 
+int main()
+{
+    char* str;
+ 
+    // Stored in read only part of data segment //
+    str = "GfG";
+ 
+    // Problem:  trying to modify read only memory //
+    *(str + 1) = 'n';
     return 0;
 }
 ```
 
-Se lo compila ahora con `gcc helloWorld.c -o helloWorld`. Para eso se crea un Makefile:
+2. Acceso a memoria 
 
-```bash
-all:
-	gcc helloWorld.c -o helloWorld
-
-install:
-	install -D helloWorld /usr/local/bin/helloWorld
-
-clean:
-	rm -f helloWorld
+```c
+#include <stdio.h>
+#include <stdlib.h>
+ 
+int main(void)
+{
+    // allocating memory to p
+    int* p = (int*)malloc(8);
+    *p = 100;
+ 
+    // deallocated the space allocated to p
+    free(p);
+ 
+    // core dump/segmentation fault
+    //  as now this statement is illegal
+    *p = 110;
+    printf("%d", *p);
+ 
+    return 0;
+}
 ```
 
-Luego de `make`, se llama a `sudo checkinstall`, y se pide una descripcion, asi como tambien se termina de compilar y crear el paquete. Ahora, cada que se llama a `helloWorld` en consola se obtiene la salida deseada.
+3. Acceder a indices fuera de un indice
 
-<img src="./assets/helloWorld.png">
-
-## Desafio 2
-
-### Funciones disponibles en un programa y un modulo
-
-Un programa es un conjunto completo de código que puede ejecutarse de manera independiente. Generalmente, tiene una función principal y puede incluir múltiples módulos y bibliotecas. Un módulo es un archivo que contiene definiciones de funciones, clases y variables que pueden ser reutilizadas en otros programas y módulos. Un módulo puede ser importado en otros módulos o programas.
-
-Las funciones disponibles en un programa son:
-
-- Ejecución Principal
-- Importación de Módulos
-- Interacción con el Usuario
-- Manejo de Archivos
-- Ejecución de Tareas
-
-Mientras que, las funciones disponibles en un módulo son:
-
-- Definición de Funciones y Clases
-- Variables Globales
-- Constantes
-- Importación de Otros Módulos
-- Encapsulación
-- Reutilización
-
-La diferencia radica en que un programa está diseñado para ejecutarse de manera independiente, mientras que un módulo está diseñado para ser importado y reutilizado en otros programas o módulos, es decir, el objetivo de un programa es resolver una tarea o problema específico mientras que un módulo se enfoca en dar funcionalidades y que estas se puedan utilizar en dichos programas.
-
-### Espacio de usuario o espacio de kernel
-
-El espacio de usuario es el entorno en el cual se ejecutan las aplicaciones y programas. En cambio, el espacio del kernel es el entorno en el que se ejecuta el núcleo del sistema operativo. Este entorno tiene acceso completo y sin restricciones al hardware y a todos los recursos del sistema. 
-
-### Espacio de datos
-
-Se refiere a la memoria en la que se almacenan los datos durante la ejecución de un programa. Hay dos tipos de espacio de datos, el espacio de datos de usuario que es el área de memoria donde se ejecutan las aplicaciones y programas del usuario, sus principales características son el acceso restringido para evitar que las aplicaciones interfieran con el sistema operativo. Otra característica es la seguridad, se protege cada aplicación del acceso no autorizado a la memoria de otras aplicaciones. El otro es el espacio de datos del Kernel, el cual es el área de memoria reservada para el núcleo del sistema operativo, sus principales características son el acceso sin restricción, en donde el kernel tiene acceso completo a todo el hardware y la memoria del sistema. Como también gestiona recursos del sistema, memoria, dispositivos de hardware y proporciona servicios a las aplicaciones.
-
-### Drivers. Contenido de /dev
-
-Los drivers son programas que permiten que el sistema operativo se comunique con el hardware del sistema. Actúan como intermediarios, traduciendo las instrucciones del sistema operativo en acciones específicas que el hardware puede ejecutar. El directorio `/dev` en linux contiene archivos especiales que representan dispositivos del sistema. Estos archivos permiten al software interactuar con el hardware mediante el acceso a estos archivos como si fueran archivos normales. Los mas comunes son:
-
-- `/dev/sda`: se refiere al primer disco duro.
-- `/dev/tty`: se refiere a las terminales.
-- `/dev/null`: Dispositivo que descarta toda la entrada.
-- `/dev/random`: Generador de números aleatorios.
-- `/dev/loop0`: Primer dispositivo de loopback, usado para montar archivos como si fueran discos.
-
-Si se ejecuta la sentencia `ls -l dev` en un computador, se obtiene algo como lo siguiente:
-
-```bash
-total 0
-crw-r--r--  1 root root       10,   235 jun  1 07:45 autofs
-drwxr-xr-x  2 root root             720 jun  1 07:51 block
-drwxr-xr-x  2 root root              60 jun  1 07:45 bsg
-crw-------  1 root root       10,   234 jun  1 07:45 btrfs-control
-drwxr-xr-x  3 root root              60 jun  1 07:45 bus
-drwxr-xr-x  2 root root            4440 jun  1 21:08 char
-crw--w----  1 root tty         5,     1 jun  1 07:45 console
-lrwxrwxrwx  1 root root              11 jun  1 07:45 core -> /proc/kcore
-drwxr-xr-x  6 root root             120 jun  1 07:45 cpu
-crw-------  1 root root       10,   121 jun  1 07:45 cpu_dma_latency
-crw-------  1 root root       10,   203 jun  1 07:45 cuse
-drwxr-xr-x  7 root root             140 jun  1 07:45 disk
-drwxr-xr-x  2 root root              60 jun  1 07:45 dma_heap
-drwxr-xr-x  3 root root             100 jun  1 07:45 dri
-crw-------  1 root root      236,     0 jun  1 07:45 drm_dp_aux0
-crw-------  1 root root      236,     1 jun  1 07:45 drm_dp_aux1
-crw-------  1 root root       10,   123 jun  1 07:45 ecryptfs
-crw-rw----  1 root video      29,     0 jun  1 07:45 fb0
-lrwxrwxrwx  1 root root              13 jun  1 07:45 fd -> /proc/self/fd
-crw-rw-rw-  1 root root        1,     7 jun  1 07:45 full
-crw-rw-rw-  1 root root       10,   229 jun  1 07:45 fuse
-crw-------  1 root root      254,     0 jun  1 07:45 gpiochip0
-crw-------  1 root root      241,     0 jun  1 20:52 hidraw0
-crw-------  1 root root      241,     1 jun  1 21:08 hidraw1
-crw-------  1 root root      241,     2 jun  1 21:08 hidraw2
-crw-------  1 root root       10,   228 jun  1 07:45 hpet
-drwxr-xr-x  2 root root               0 jun  1 07:45 hugepages
-crw-------  1 root root       10,   183 jun  1 07:45 hwrng
-crw-------  1 root root       89,     0 jun  1 07:45 i2c-0
-crw-------  1 root root       89,     1 jun  1 07:45 i2c-1
-crw-------  1 root root       89,     2 jun  1 07:45 i2c-2
-crw-------  1 root root       89,     3 jun  1 07:45 i2c-3
-crw-------  1 root root       89,     4 jun  1 07:45 i2c-4
-crw-------  1 root root       89,     5 jun  1 07:45 i2c-5
-crw-------  1 root root       89,     6 jun  1 07:45 i2c-6
-lrwxrwxrwx  1 root root              12 jun  1 07:45 initctl -> /run/initctl
-drwxr-xr-x  4 root root             400 jun  1 21:08 input
-crw-r--r--  1 root root        1,    11 jun  1 07:45 kmsg
-crw-rw----+ 1 root kvm        10,   232 jun  1 07:45 kvm
-lrwxrwxrwx  1 root root              28 jun  1 07:45 log -> /run/systemd/journal/dev-log
-brw-rw----  1 root disk        7,     0 jun  1 07:45 loop0
-brw-rw----  1 root disk        7,     1 jun  1 07:45 loop1
-brw-rw----  1 root disk        7,    10 jun  1 07:45 loop10
-brw-rw----  1 root disk        7,    11 jun  1 07:45 loop11
-brw-rw----  1 root disk        7,    12 jun  1 07:45 loop12
-brw-rw----  1 root disk        7,    13 jun  1 07:45 loop13
-brw-rw----  1 root disk        7,    14 jun  1 07:45 loop14
-brw-rw----  1 root disk        7,    15 jun  1 07:45 loop15
-brw-rw----  1 root disk        7,    16 jun  1 07:45 loop16
-brw-rw----  1 root disk        7,    17 jun  1 07:45 loop17
-brw-rw----  1 root disk        7,    18 jun  1 07:45 loop18
-brw-rw----  1 root disk        7,    19 jun  1 07:45 loop19
-brw-rw----  1 root disk        7,     2 jun  1 07:45 loop2
-brw-rw----  1 root disk        7,    20 jun  1 07:45 loop20
-brw-rw----  1 root disk        7,    21 jun  1 07:45 loop21
-brw-rw----  1 root disk        7,    22 jun  1 07:45 loop22
-brw-rw----  1 root disk        7,    23 jun  1 07:45 loop23
-brw-rw----  1 root disk        7,    24 jun  1 07:45 loop24
-brw-rw----  1 root disk        7,    25 jun  1 07:45 loop25
-brw-rw----  1 root disk        7,    26 jun  1 07:45 loop26
-brw-rw----  1 root disk        7,    27 jun  1 07:51 loop27
-brw-rw----  1 root disk        7,    28 jun  1 07:45 loop28
-brw-rw----  1 root disk        7,    29 jun  1 07:45 loop29
-brw-rw----  1 root disk        7,     3 jun  1 07:45 loop3
-brw-rw----  1 root disk        7,    30 jun  1 07:45 loop30
-brw-rw----  1 root disk        7,     4 jun  1 07:45 loop4
-brw-rw----  1 root disk        7,     5 jun  1 07:45 loop5
-brw-rw----  1 root disk        7,     6 jun  1 07:45 loop6
-brw-rw----  1 root disk        7,     7 jun  1 07:45 loop7
-brw-rw----  1 root disk        7,     8 jun  1 07:45 loop8
-brw-rw----  1 root disk        7,     9 jun  1 07:45 loop9
-crw-rw----  1 root disk       10,   237 jun  1 07:45 loop-control
-drwxr-xr-x  2 root root              60 jun  1 07:45 mapper
-crw-------  1 root root       10,   227 jun  1 07:45 mcelog
-crw-rw----+ 1 root video     238,     0 jun  1 07:45 media0
-crw-------  1 root root      240,     0 jun  1 07:45 mei0
-crw-r-----  1 root kmem        1,     1 jun  1 07:45 mem
-drwxrwxrwt  2 root root              40 jun  1 07:45 mqueue
-drwxr-xr-x  2 root root              60 jun  1 07:45 net
-crw-rw-rw-  1 root root        1,     3 jun  1 07:45 null
-crw-------  1 root root       10,   144 jun  1 07:45 nvram
-crw-r-----  1 root kmem        1,     4 jun  1 07:45 port
-crw-------  1 root root      108,     0 jun  1 07:45 ppp
-crw-------  1 root root       10,     1 jun  1 07:45 psaux
-crw-rw-rw-  1 root tty         5,     2 jun  1 22:16 ptmx
-crw-------  1 root root      246,     0 jun  1 07:45 ptp0
-drwxr-xr-x  2 root root               0 jun  1 07:45 pts
-crw-rw-rw-  1 root root        1,     8 jun  1 07:45 random
-crw-rw-r--+ 1 root root       10,   242 jun  1 07:45 rfkill
-lrwxrwxrwx  1 root root               4 jun  1 07:45 rtc -> rtc0
-crw-------  1 root root      248,     0 jun  1 07:45 rtc0
-brw-rw----  1 root disk        8,     0 jun  1 07:45 sda
-brw-rw----  1 root disk        8,     1 jun  1 07:45 sda1
-brw-rw----  1 root disk        8,     2 jun  1 07:45 sda2
-crw-rw----  1 root disk       21,     0 jun  1 07:45 sg0
-crw-------  1 root root       10,   126 jun  1 07:45 sgx_provision
-crw-rw----  1 root sgx        10,   125 jun  1 07:45 sgx_vepc
-drwxrwxrwt  2 root root              40 jun  1 22:16 shm
-crw-------  1 root root       10,   231 jun  1 07:45 snapshot
-drwxr-xr-x  4 root root             340 jun  1 21:08 snd
-lrwxrwxrwx  1 root root              15 jun  1 07:45 stderr -> /proc/self/fd/2
-lrwxrwxrwx  1 root root              15 jun  1 07:45 stdin -> /proc/self/fd/0
-lrwxrwxrwx  1 root root              15 jun  1 07:45 stdout -> /proc/self/fd/1
-crw-rw----  1 tss  root       10,   224 jun  1 07:45 tpm0
-crw-rw----  1 tss  tss       253, 65536 jun  1 07:45 tpmrm0
-crw-rw-rw-  1 root tty         5,     0 jun  1 22:13 tty
-crw--w----  1 root tty         4,     0 jun  1 07:45 tty0
-crw--w----  1 root tty         4,     1 jun  1 07:45 tty1
-crw--w----  1 root tty         4,    10 jun  1 07:45 tty10
-crw--w----  1 root tty         4,    11 jun  1 07:45 tty11
-crw--w----  1 root tty         4,    12 jun  1 07:45 tty12
-crw--w----  1 root tty         4,    13 jun  1 07:45 tty13
-crw--w----  1 root tty         4,    14 jun  1 07:45 tty14
-crw--w----  1 root tty         4,    15 jun  1 07:45 tty15
-crw--w----  1 root tty         4,    16 jun  1 07:45 tty16
-crw--w----  1 root tty         4,    17 jun  1 07:45 tty17
-crw--w----  1 root tty         4,    18 jun  1 07:45 tty18
-crw--w----  1 root tty         4,    19 jun  1 07:45 tty19
-crw--w----  1 nico tty         4,     2 jun  1 07:45 tty2
-crw--w----  1 root tty         4,    20 jun  1 07:45 tty20
-crw--w----  1 root tty         4,    21 jun  1 07:45 tty21
-crw--w----  1 root tty         4,    22 jun  1 07:45 tty22
-crw--w----  1 root tty         4,    23 jun  1 07:45 tty23
-crw--w----  1 root tty         4,    24 jun  1 07:45 tty24
-crw--w----  1 root tty         4,    25 jun  1 07:45 tty25
-crw--w----  1 root tty         4,    26 jun  1 07:45 tty26
-crw--w----  1 root tty         4,    27 jun  1 07:45 tty27
-crw--w----  1 root tty         4,    28 jun  1 07:45 tty28
-crw--w----  1 root tty         4,    29 jun  1 07:45 tty29
-crw--w----  1 root tty         4,     3 jun  1 07:45 tty3
-crw--w----  1 root tty         4,    30 jun  1 07:45 tty30
-crw--w----  1 root tty         4,    31 jun  1 07:45 tty31
-crw--w----  1 root tty         4,    32 jun  1 07:45 tty32
-crw--w----  1 root tty         4,    33 jun  1 07:45 tty33
-crw--w----  1 root tty         4,    34 jun  1 07:45 tty34
-crw--w----  1 root tty         4,    35 jun  1 07:45 tty35
-crw--w----  1 root tty         4,    36 jun  1 07:45 tty36
-crw--w----  1 root tty         4,    37 jun  1 07:45 tty37
-crw--w----  1 root tty         4,    38 jun  1 07:45 tty38
-crw--w----  1 root tty         4,    39 jun  1 07:45 tty39
-crw--w----  1 root tty         4,     4 jun  1 07:45 tty4
-crw--w----  1 root tty         4,    40 jun  1 07:45 tty40
-crw--w----  1 root tty         4,    41 jun  1 07:45 tty41
-crw--w----  1 root tty         4,    42 jun  1 07:45 tty42
-crw--w----  1 root tty         4,    43 jun  1 07:45 tty43
-crw--w----  1 root tty         4,    44 jun  1 07:45 tty44
-crw--w----  1 root tty         4,    45 jun  1 07:45 tty45
-crw--w----  1 root tty         4,    46 jun  1 07:45 tty46
-crw--w----  1 root tty         4,    47 jun  1 07:45 tty47
-crw--w----  1 root tty         4,    48 jun  1 07:45 tty48
-crw--w----  1 root tty         4,    49 jun  1 07:45 tty49
-crw--w----  1 root tty         4,     5 jun  1 07:45 tty5
-crw--w----  1 root tty         4,    50 jun  1 07:45 tty50
-crw--w----  1 root tty         4,    51 jun  1 07:45 tty51
-crw--w----  1 root tty         4,    52 jun  1 07:45 tty52
-crw--w----  1 root tty         4,    53 jun  1 07:45 tty53
-crw--w----  1 root tty         4,    54 jun  1 07:45 tty54
-crw--w----  1 root tty         4,    55 jun  1 07:45 tty55
-crw--w----  1 root tty         4,    56 jun  1 07:45 tty56
-crw--w----  1 root tty         4,    57 jun  1 07:45 tty57
-crw--w----  1 root tty         4,    58 jun  1 07:45 tty58
-crw--w----  1 root tty         4,    59 jun  1 07:45 tty59
-crw--w----  1 root tty         4,     6 jun  1 07:45 tty6
-crw--w----  1 root tty         4,    60 jun  1 07:45 tty60
-crw--w----  1 root tty         4,    61 jun  1 07:45 tty61
-crw--w----  1 root tty         4,    62 jun  1 07:45 tty62
-crw--w----  1 root tty         4,    63 jun  1 07:45 tty63
-crw--w----  1 root tty         4,     7 jun  1 07:45 tty7
-crw--w----  1 root tty         4,     8 jun  1 07:45 tty8
-crw--w----  1 root tty         4,     9 jun  1 07:45 tty9
-crw-------  1 root root        5,     3 jun  1 07:45 ttyprintk
-crw-rw----  1 root dialout     4,    64 jun  1 07:45 ttyS0
-crw-rw----  1 root dialout     4,    65 jun  1 07:45 ttyS1
-crw-rw----  1 root dialout     4,    74 jun  1 07:45 ttyS10
-crw-rw----  1 root dialout     4,    75 jun  1 07:45 ttyS11
-crw-rw----  1 root dialout     4,    76 jun  1 07:45 ttyS12
-crw-rw----  1 root dialout     4,    77 jun  1 07:45 ttyS13
-crw-rw----  1 root dialout     4,    78 jun  1 07:45 ttyS14
-crw-rw----  1 root dialout     4,    79 jun  1 07:45 ttyS15
-crw-rw----  1 root dialout     4,    80 jun  1 07:45 ttyS16
-crw-rw----  1 root dialout     4,    81 jun  1 07:45 ttyS17
-crw-rw----  1 root dialout     4,    82 jun  1 07:45 ttyS18
-crw-rw----  1 root dialout     4,    83 jun  1 07:45 ttyS19
-crw-rw----  1 root dialout     4,    66 jun  1 07:45 ttyS2
-crw-rw----  1 root dialout     4,    84 jun  1 07:45 ttyS20
-crw-rw----  1 root dialout     4,    85 jun  1 07:45 ttyS21
-crw-rw----  1 root dialout     4,    86 jun  1 07:45 ttyS22
-crw-rw----  1 root dialout     4,    87 jun  1 07:45 ttyS23
-crw-rw----  1 root dialout     4,    88 jun  1 07:45 ttyS24
-crw-rw----  1 root dialout     4,    89 jun  1 07:45 ttyS25
-crw-rw----  1 root dialout     4,    90 jun  1 07:45 ttyS26
-crw-rw----  1 root dialout     4,    91 jun  1 07:45 ttyS27
-crw-rw----  1 root dialout     4,    92 jun  1 07:45 ttyS28
-crw-rw----  1 root dialout     4,    93 jun  1 07:45 ttyS29
-crw-rw----  1 root dialout     4,    67 jun  1 07:45 ttyS3
-crw-rw----  1 root dialout     4,    94 jun  1 07:45 ttyS30
-crw-rw----  1 root dialout     4,    95 jun  1 07:45 ttyS31
-crw-rw----  1 root dialout     4,    68 jun  1 07:45 ttyS4
-crw-rw----  1 root dialout     4,    69 jun  1 07:45 ttyS5
-crw-rw----  1 root dialout     4,    70 jun  1 07:45 ttyS6
-crw-rw----  1 root dialout     4,    71 jun  1 07:45 ttyS7
-crw-rw----  1 root dialout     4,    72 jun  1 07:45 ttyS8
-crw-rw----  1 root dialout     4,    73 jun  1 07:45 ttyS9
-crw-rw----  1 root kvm        10,   122 jun  1 07:45 udmabuf
-crw-------  1 root root       10,   239 jun  1 07:45 uhid
-crw-------  1 root root       10,   223 jun  1 07:45 uinput
-crw-rw-rw-  1 root root        1,     9 jun  1 07:45 urandom
-drwxr-xr-x  2 root root              60 jun  1 21:08 usb
-crw-------  1 root root       10,   124 jun  1 07:45 userfaultfd
-crw-------  1 root root       10,   240 jun  1 07:45 userio
-drwxr-xr-x  4 root root              80 jun  1 07:45 v4l
-crw-------  1 root root       10,   120 jun  1 07:45 vboxdrv
-crw-rw-rw-  1 root root       10,   119 jun  1 07:45 vboxdrvu
-crw-------  1 root root       10,   118 jun  1 07:45 vboxnetctl
-drwxr-x---  3 root vboxusers         60 jun  1 07:45 vboxusb
-crw-rw----  1 root tty         7,     0 jun  1 07:45 vcs
-crw-rw----  1 root tty         7,     1 jun  1 07:45 vcs1
-crw-rw----  1 root tty         7,     2 jun  1 07:45 vcs2
-crw-rw----  1 root tty         7,     3 jun  1 07:45 vcs3
-crw-rw----  1 root tty         7,     4 jun  1 07:45 vcs4
-crw-rw----  1 root tty         7,     5 jun  1 07:45 vcs5
-crw-rw----  1 root tty         7,     6 jun  1 07:45 vcs6
-crw-rw----  1 root tty         7,   128 jun  1 07:45 vcsa
-crw-rw----  1 root tty         7,   129 jun  1 07:45 vcsa1
-crw-rw----  1 root tty         7,   130 jun  1 07:45 vcsa2
-crw-rw----  1 root tty         7,   131 jun  1 07:45 vcsa3
-crw-rw----  1 root tty         7,   132 jun  1 07:45 vcsa4
-crw-rw----  1 root tty         7,   133 jun  1 07:45 vcsa5
-crw-rw----  1 root tty         7,   134 jun  1 07:45 vcsa6
-crw-rw----  1 root tty         7,    64 jun  1 07:45 vcsu
-crw-rw----  1 root tty         7,    65 jun  1 07:45 vcsu1
-crw-rw----  1 root tty         7,    66 jun  1 07:45 vcsu2
-crw-rw----  1 root tty         7,    67 jun  1 07:45 vcsu3
-crw-rw----  1 root tty         7,    68 jun  1 07:45 vcsu4
-crw-rw----  1 root tty         7,    69 jun  1 07:45 vcsu5
-crw-rw----  1 root tty         7,    70 jun  1 07:45 vcsu6
-drwxr-xr-x  2 root root              60 jun  1 07:45 vfio
-crw-------  1 root root       10,   127 jun  1 07:45 vga_arbiter
-crw-------  1 root root       10,   137 jun  1 07:45 vhci
-crw-rw----  1 root kvm        10,   238 jun  1 07:45 vhost-net
-crw-rw----  1 root kvm        10,   241 jun  1 07:45 vhost-vsock
-crw-rw----+ 1 root video      81,     0 jun  1 07:45 video0
-crw-rw----+ 1 root video      81,     1 jun  1 07:45 video1
-crw-rw-rw-  1 root root        1,     5 jun  1 07:45 zero
-crw-------  1 root root       10,   249 jun  1 07:45 zfs
+```c
+#include <stdio.h>
+ 
+int main(void)
+{
+    int arr[2];
+ 
+    // Accessing out of bound
+    arr[3] = 10;
+ 
+    return (0);
+}
 ```
 
-Y, al llamar a `/dev df -h`:
+4. Uso de `scanf()`
 
-```bash
-S.ficheros     Tamaño Usados  Disp Uso% Montado en
-tmpfs            772M   2,2M  770M   1% /run
-/dev/sda2        219G   124G   84G  60% /
-tmpfs            3,8G   258M  3,6G   7% /dev/shm
-tmpfs            5,0M   4,0K  5,0M   1% /run/lock
-efivarfs         108K   102K  1,6K  99% /sys/firmware/efi/efivars
-tmpfs            3,8G      0  3,8G   0% /run/qemu
-/dev/sda1        511M   6,1M  505M   2% /boot/efi
-tmpfs            772M   152K  772M   1% /run/user/1000
+```c
+#include <stdio.h>
+ 
+int main()
+{
+    int n = 2;
+    scanf("%d", n);
+    return 0;
+}
 ```
 
-Donde el fichero `tmpfs` es **Temporary File System**, es un Sistema de archivos temporal en RAM, usado para datos que cambian frecuentemente y no necesitan ser persistentes.
+5. Stack overflow
 
-- `/dev/sda2` es la partición principal del disco duro, contiene el sistema operativo y los datos de usuario.
-- `tmpfs - /dev/shm` se refiere a Memoria compartida, usada por procesos para comunicarse entre sí. Está montada en /dev/shm
-- `tmpfs - /run/lock` se refiere a Bloqueo de archivos temporales, usado para gestionar archivos de bloqueo que previenen que múltiples procesos accedan al mismo recurso simultáneamente. Está montado en /run/lock.
-- `efivarfs - /sys/firmware/efi/efivars` se trata de un Sistema de archivos especial para variables EFI (Extensible Firmware Interface), usado por el firmware UEFI. Está montado en /sys/firmware/efi/efivars.
-- `tmpfs - /run/qemu` se trata de un Sistema de archivos temporal que puede ser usado por máquinas virtuales. Está montado en /run/qemu.
-- `/dev/sda1 - /boot/efi` es la Partición EFI, contiene archivos necesarios para arrancar el sistema en modo UEFI.
-- `tmpfs - /run/user/1000` es el Directorio temporal para el usuario con ID 1000, generalmente el primer usuario creado en el sistema.
+```c
+#include <stdio.h>
+ 
+int main()
+{
+    int arr[2000000000];
+ 
+    return 0;
+}
+```
 
+#### Formas de manejarlo
 
+##### Kernel
 
+1. Detección del Fault:
 
+- Cuando un programa realiza una operación de memoria inválida, la unidad de gestión de memoria (MMU) del hardware genera una excepción de "page fault".
+- Esta excepción es interceptada por el kernel de Linux.
 
+2. Verificación del Acceso:
 
+- El kernel verifica si la dirección de memoria accedida es válida y si el proceso tiene los permisos adecuados para acceder a esa dirección.
+- Si el acceso es válido, el kernel maneja la falta de página.
+
+3. Generación del Signal:
+
+- Si el acceso es inválido, el kernel envía una señal `SIGSEGV` (señal de segmentación) al proceso que causó el error.
+- Esta señal indica que el proceso ha intentado acceder a una dirección de memoria no permitida.
+
+##### Programa
+
+1. Recepción del Signal:
+
+- Cuando el programa recibe la señal SIGSEGV, puede tomar varias acciones dependiendo de cómo esté configurado para manejar señales.
+- Por defecto, si no hay un manejador específico para SIGSEGV, el programa será terminado por el sistema.
+
+2. Instalación de un Signal Handler:
+
+- Un programa puede instalar un "signal handler" (manejador de señales) personalizado para manejar SIGSEGV usando la función signal o sigaction.
+- Este manejador es una función que se ejecuta cuando se recibe la señal. Puede ser usado para tareas como registrar información de depuración, liberar recursos, o intentar una recuperación limitada.
 
 
 

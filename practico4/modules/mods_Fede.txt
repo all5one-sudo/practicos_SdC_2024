@@ -1,0 +1,72 @@
+Module                  Size  Used by
+uinput                 28672  1
+snd_seq_dummy          16384  0
+snd_hrtimer            20480  1
+snd_seq                90112  7 snd_seq_dummy
+snd_seq_device         16384  1 snd_seq
+snd_timer              40960  2 snd_seq,snd_hrtimer
+snd                    98304  5 snd_seq,snd_seq_device,snd_timer
+soundcore              16384  1 snd
+rfkill                 36864  3
+qrtr                   40960  4
+binfmt_misc            24576  1
+nls_ascii              16384  1
+nls_cp437              20480  1
+vfat                   24576  1
+fat                    77824  1 vfat
+joydev                 32768  0
+hid_generic            16384  0
+usbhid                 57344  0
+aes_ce_blk             32768  0
+hid                   135168  2 usbhid,hid_generic
+aes_ce_cipher          16384  1 aes_ce_blk
+polyval_ce             16384  0
+polyval_generic        16384  1 polyval_ce
+apple_mfi_fastcharge    20480  0
+ghash_ce               20480  0
+gf128mul               16384  2 polyval_generic,ghash_ce
+sha3_ce                16384  0
+sha3_generic           16384  1 sha3_ce
+sha512_ce              16384  0
+sha512_arm64           20480  1 sha512_ce
+sha2_ce                16384  0
+sha256_arm64           24576  1 sha2_ce
+sha1_ce                16384  0
+virtio_balloon         28672  0
+virtio_console         45056  1
+virtiofs               32768  1
+evdev                  28672  6
+loop                   36864  0
+fuse                  135168  6 virtiofs
+dm_mod                143360  0
+efi_pstore             16384  0
+dax                    32768  1 dm_mod
+configfs               49152  1
+efivarfs               20480  1
+virtio_rng             16384  0
+ip_tables              32768  0
+x_tables               36864  1 ip_tables
+autofs4                45056  2
+ext4                  765952  1
+crc16                  16384  1 ext4
+mbcache                20480  1 ext4
+jbd2                  139264  1 ext4
+crc32c_generic         16384  2
+virtio_gpu             69632  1
+virtio_dma_buf         16384  1 virtio_gpu
+drm_shmem_helper       20480  1 virtio_gpu
+drm_kms_helper        139264  3 virtio_gpu
+drm                   442368  5 drm_kms_helper,drm_shmem_helper,virtio_gpu
+virtio_net             57344  0
+net_failover           20480  1 virtio_net
+virtio_blk             28672  4
+failover               16384  1 net_failover
+xhci_pci               24576  0
+xhci_hcd              258048  1 xhci_pci
+usbcore               270336  4 xhci_hcd,usbhid,apple_mfi_fastcharge,xhci_pci
+crct10dif_ce           16384  0
+crct10dif_common       16384  1 crct10dif_ce
+usb_common             16384  2 xhci_hcd,usbcore
+virtio_pci             28672  0
+virtio_pci_legacy_dev    16384  1 virtio_pci
+virtio_pci_modern_dev    16384  1 virtio_pci
