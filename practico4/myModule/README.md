@@ -49,7 +49,7 @@ clean:
 
 Ahora se lo compila con `make`, obteniendose la siguiente salida:
 
-<img src='./assets/make_mod.png'>
+<img src='../assets/make_mod.png'>
 
 Se procede ahora a generar las claves de firma. Primero una clave privada y un certificado X.509.
 
@@ -63,7 +63,7 @@ Ahora hay que importar la clave con:
 sudo mokutil --import MOK.der
 ```
 
-<img src='./assets/firm_sec.png'>
+<img src='../assets/firm_sec.png'>
 
 Puede verse que el Secure Boot no esta habilitado, esto es comun porque se esta trabajando en un sistema linux virtualizado. Esto significa que tecnicamente no es necesario firmar el modulo. Por lo tanto, se procede a llamar a `insmod`, obteniendose el siguiente mensaje desde `dmesg` (tail):
 
