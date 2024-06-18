@@ -8,6 +8,56 @@ Un "driver" puede ser una persona o sistemas automáticos, posiblemente monitore
 
 Los ejemplos generales de "device controller" incluyen controladores de disco duro, controladores de pantalla, controladores de audio para los dispositivos correspondientes. Ejemplos más técnicos serían los controladores para los protocolos de hardware, como un controlador IDE, un controlador PCI, un controlador USB, un controlador SPI, un controlador I2C, etc. 
 
+## Marco teórico
+
+### Driver (controlador)
+
+Un controlador es un componente de software que permite que el sistema operativo y un dispositivo se comuniquen. Por ejemplo, cuando una aplicación necesita leer datos de un dispositivo, llama a una función implementada por el sistema operativo. A continuación, el sistema operativo llama a una función implementada por el controlador. El controlador, normalmente desarrollado por el fabricante del dispositivo, sabe cómo comunicarse con el hardware del dispositivo para obtener los datos. Una vez que el controlador obtiene los datos, los devuelve al sistema operativo, que luego los devuelve a la aplicación.
+
+<img src="./assets/linux_drivers.png">
+
+#### Características principales
+
+- **Abstracción del Hardware**: proporcionan una capa de abstracción que oculta los detalles específicos del hardware y ofrecen una interfaz estándar para interactuar con el dispositivo.
+- **Gestión de Dispositivos**: manejan la inicialización, configuración y control del hardware.
+- **Interacción con el Kernel**: operan en el espacio del kernel, permitiendo un acceso rápido y eficiente al hardware.
+- **Manipulación de Operaciones**: implementan operaciones esenciales como lectura, escritura, apertura y cierre del dispositivo.
+
+#### Tipos
+
+- **Drivers de Dispositivos de Bloques**: gestionan dispositivos que manejan datos en bloques, como discos duros y unidades de almacenamiento.
+- **Drivers de Dispositivos de Caracteres**: gestionan dispositivos que manejan datos en forma de flujo continuo de caracteres, como puertos serie y terminales.
+- **Drivers de Dispositivos de Red**: gestionan interfaces de red, permitiendo la comunicación de datos entre dispositivos a través de redes.
+
+#### Componentes
+
+1. **Registro del Dispositivo**: el driver debe registrarse con el kernel para ser reconocido como un controlador válido.
+2. **Inicialización y Limpieza**: funciones para la inicialización y limpieza del driver (`module_init` y `module_exit`).
+3. **Estructura de Operaciones del Archivo**: define las operaciones que el driver soporta, como `open`, `read`, `write`, y `close`.
+4. **Manejo de Interrupciones**: (opcional) si el dispositivo genera interrupciones, el driver debe manejarlas adecuadamente.
+5. **Interfaz de Usuario**: puede proporcionar interfaces en `/dev`, `/sys`, o `/proc` para la interacción con el usuario.
+
+### Character Device Driver (CDD)
+
+<img src="./assets/cdd.jpg">
+
+Un **driver de dispositivo de caracteres** en Linux es un tipo de driver que gestiona dispositivos que manejan datos en forma de flujo continuo de caracteres. Este tipo de driver es adecuado para dispositivos como puertos serie, teclados y ratones.
+
+#### Características principales
+
+- **Flujo Continuo de Datos**: maneja datos como un flujo continuo de bytes en lugar de bloques discretos.
+- **Interfaz de Dispositivo**: proporciona una interfaz en el espacio de usuario a través de archivos de dispositivo en `/dev`.
+- **Operaciones Básicas**: implementa operaciones esenciales como apertura, cierre, lectura y escritura del dispositivo.
+- **Registro en el Kernel**: se registra con el kernel para ser reconocido como un controlador válido.
+
+#### Componentes comunes de un CDD
+
+1. **Registro del Dispositivo**: el driver debe registrarse con el kernel, obteniendo un número mayor y menor.
+2. **Inicialización y Limpieza**: funciones para la inicialización y limpieza del driver (`module_init` y `module_exit`).
+3. **Estructura de Operaciones del Archivo**: define las operaciones que el driver soporta, como `open`, `read`, `write`, y `release`.
+4. **Manejo de Datos**: implementa la lógica para manejar la lectura y escritura de datos desde y hacia el dispositivo.
+5. **Interacción con el Espacio de Usuario**: proporciona una interfaz para que las aplicaciones de usuario puedan interactuar con el dispositivo a través de llamadas al sistema.
+
 ## Desarrollo
 
 ### Driver 1
