@@ -1,6 +1,4 @@
 obj-m += driver_rasp.o
-
-
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 

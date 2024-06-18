@@ -133,7 +133,7 @@ static int __init ofcd_init(void)
         return -1;
     }
 
-    if (gpio_request(sensor1, "sensor1") < 0)
+    if (gpio_request(sensor_1, "sensor1") < 0)
     {
         printk(KERN_ALERT "Error requesting GPIO pin for sensor 1\n");
         return -1;
@@ -145,7 +145,7 @@ static int __init ofcd_init(void)
         return -1;
     }
 
-    gpio_direction_input(sensor1);
+    gpio_direction_input(sensor_1);
     gpio_direction_input(sensor_2);
     return 0;
 }

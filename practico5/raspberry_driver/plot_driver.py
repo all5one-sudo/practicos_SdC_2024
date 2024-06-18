@@ -53,6 +53,8 @@ def change_pin(event):
     global current_pin
     current_pin = "22" if current_pin == "27" else "27"  # se selecciona el pin a leer
     write_character_device(current_pin)
+    values_pin22.clear()
+    values_pin27.clear()
 
 
 # Figura de matplotlib
