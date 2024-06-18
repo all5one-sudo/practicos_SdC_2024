@@ -1,0 +1,10 @@
+[    2.499910] NET: Registered PF_QIPCRTR protocol family
+[   14.119832] rfkill: input handler disabled
+[   29.823838] rfkill: input handler enabled
+[   30.595933] rfkill: input handler disabled
+[ 1290.385806] drv3: loading out-of-tree module taints kernel.
+[ 1290.386280] drv3: module verification failed: signature and/or required key missing - tainting kernel
+[ 1290.387535] SdeC_drv3 Registrado exitosamente..!!
+[ 1296.160116] Driver3_SdeC: open()
+[ 1296.160135] Driver3_SdeC: read()
+[ 1296.160148] Driver3_SdeC: close()

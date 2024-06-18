@@ -53,7 +53,17 @@ static ssize_t my_read(struct file *f, char __user *buf, size_t len, loff_t *off
 }
 static ssize_t my_write(struct file *f, const char __user *buf, size_t len, loff_t *off)
 {
-    printk(KERN_INFO "Driver3_SdeC: write()\n");
+    /*printk(KERN_INFO "Driver3_SdeC: write()\n");
+    return len;*/
+    char kbuf[100];
+    if (len > 99) {
+        len = 99;
+    }
+    if (copy_from_user(kbuf,buf,len)) {
+        return -EFAULT;
+    }
+    kbuf[len] = '\0'; // para que el buffer sea un string valido
+    printk(KERN_INFO "Driver3_SdeC: write() - %s\n",kbuf);
     return len;
 }
 

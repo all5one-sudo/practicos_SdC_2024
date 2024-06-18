@@ -39,10 +39,9 @@ __used __section("__versions") = {
 	{ 0x28600b17, "device_destroy" },
 	{ 0x8b7b270b, "class_destroy" },
 	{ 0x7de1aceb, "cdev_del" },
-	{ 0xdcb764ad, "memset" },
-	{ 0x88db9f48, "__check_object_size" },
 	{ 0x12a4e128, "__arch_copy_from_user" },
-	{ 0x8da6585d, "__stack_chk_fail" },
+	{ 0xdcb764ad, "memset" },
+	{ 0x6cbbfc54, "__arch_copy_to_user" },
 	{ 0x8a87936a, "module_layout" },
 };
 

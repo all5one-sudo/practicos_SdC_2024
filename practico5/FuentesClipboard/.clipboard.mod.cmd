@@ -1,0 +1,1 @@
+cmd_/home/debian/Documents/practicos_SdC_2024/practico5/FuentesClipboard/clipboard.mod := printf '%s\n'   clipboard.o | awk '!x[$$0]++ { print("/home/debian/Documents/practicos_SdC_2024/practico5/FuentesClipboard/"$$0) }' > /home/debian/Documents/practicos_SdC_2024/practico5/FuentesClipboard/clipboard.mod
