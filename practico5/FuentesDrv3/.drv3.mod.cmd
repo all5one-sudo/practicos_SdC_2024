@@ -1,0 +1,1 @@
+cmd_/home/debian/Documents/practicos_SdC_2024/practico5/FuentesDrv3/drv3.mod := printf '%s\n'   drv3.o | awk '!x[$$0]++ { print("/home/debian/Documents/practicos_SdC_2024/practico5/FuentesDrv3/"$$0) }' > /home/debian/Documents/practicos_SdC_2024/practico5/FuentesDrv3/drv3.mod

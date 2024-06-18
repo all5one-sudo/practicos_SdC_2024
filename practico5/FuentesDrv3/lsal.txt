@@ -1,0 +1,1 @@
+crw------- 1 root root 234, 0 Jun  3 13:56 /dev/SdeC_drv3
