@@ -1,0 +1,10 @@
+[    2.212808] NET: Registered PF_QIPCRTR protocol family
+[   14.214779] rfkill: input handler disabled
+[   14.572739] input: spice vdagent tablet as /devices/virtual/input/input3
+[   20.444800] rfkill: input handler enabled
+[   21.157946] rfkill: input handler disabled
+[   21.907784] input: spice vdagent tablet as /devices/virtual/input/input4
+[  771.028068] myModule: loading out-of-tree module taints kernel.
+[  771.028552] myModule: module verification failed: signature and/or required key missing - tainting kernel
+[  771.029886] Equipo: debian
+[  897.137815] Módulo descargado

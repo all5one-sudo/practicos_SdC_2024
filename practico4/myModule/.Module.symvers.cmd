@@ -1,0 +1,1 @@
+cmd_/home/debian/Documents/practicos_SdC_2024/practico4/myModule/Module.symvers :=  sed 's/ko$$/o/'  /home/debian/Documents/practicos_SdC_2024/practico4/myModule/modules.order | scripts/mod/modpost -m      -o /home/debian/Documents/practicos_SdC_2024/practico4/myModule/Module.symvers -e -i Module.symvers -T - 

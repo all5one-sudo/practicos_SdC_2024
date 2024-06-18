@@ -1,0 +1,1 @@
+cmd_/home/debian/Documents/practicos_SdC_2024/practico4/myModule/myModule.mod := printf '%s\n'   myModule.o | awk '!x[$$0]++ { print("/home/debian/Documents/practicos_SdC_2024/practico4/myModule/"$$0) }' > /home/debian/Documents/practicos_SdC_2024/practico4/myModule/myModule.mod

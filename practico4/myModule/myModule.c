@@ -4,7 +4,7 @@
 #include <linux/utsname.h>
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Tu Nombre");
+MODULE_AUTHOR("Facundo Dalla Fontana - Nicolas Gallardo - Villar Federico");
 MODULE_DESCRIPTION("Un simple módulo de kernel que imprime el nombre del equipo.");
 
 static int __init mymodule_init(void) {

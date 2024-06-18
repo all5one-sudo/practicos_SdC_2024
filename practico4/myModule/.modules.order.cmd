@@ -1,0 +1,1 @@
+cmd_/home/debian/Documents/practicos_SdC_2024/practico4/myModule/modules.order := {   echo /home/debian/Documents/practicos_SdC_2024/practico4/myModule/myModule.ko; :; } > /home/debian/Documents/practicos_SdC_2024/practico4/myModule/modules.order
